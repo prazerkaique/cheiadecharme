@@ -1,0 +1,38 @@
+{
+  "name": "@cheia/totem",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cheia/db": "workspace:*",
+    "@cheia/types": "workspace:*",
+    "@cheia/ui": "workspace:*",
+    "@phosphor-icons/react": "^2.1.10",
+    "@supabase/supabase-js": "^2.49.0",
+    "framer-motion": "^12.4.0",
+    "lucide-react": "^0.475.0",
+    "next": "^15.2.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.54.0",
+    "zod": "^3.24.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22.0.0",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,342 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Cheia de Charme — Rosa Monochrome (do logo) */
+  --color-primary: #D94B8C;
+  --color-primary-foreground: #FFFFFF;
+  --color-primary-soft: #E87AAF;
+  --color-secondary: #F5B8D3;
+  --color-secondary-foreground: #6B1A3A;
+  --color-cta: #C2185B;
+  --color-cta-foreground: #FFFFFF;
+  --color-cta-soft: #E91E80;
+  --color-background: #FFF5F9;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFFBFE;
+  --color-brand-text: #4A0D2E;
+  --color-brand-text-muted: #7B2D52;
+  --color-brand-border: #F9D1E2;
+  --color-glass: rgba(255, 255, 255, 0.65);
+  --color-glass-border: rgba(217, 75, 140, 0.15);
+
+  /* Feedback */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+
+  /* Tipografia — sans-serif jovem */
+  --font-display: "Outfit", sans-serif;
+  --font-body: "Nunito", sans-serif;
+
+  /* Radius */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --radius-full: 9999px;
+
+  /* Kiosk layout zones (1080×1920 portrait) */
+  --kiosk-header-h: 280px;
+  --kiosk-footer-h: 420px;
+  --kiosk-margin-x: 60px;
+  --kiosk-section-gap: 48px;
+  --kiosk-button-gap: 32px;
+
+  /* Kiosk typographic scale */
+  --text-title: 52px;
+  --text-subtitle: 38px;
+  --text-body: 30px;
+  --text-secondary: 24px;
+  --text-cta: 34px;
+  --text-btn-sec: 26px;
+  --text-keypad: 64px;
+  --text-disclaimer: 20px;
+}
+
+/* ============================================================ */
+/* Base kiosk styles                                             */
+/* ============================================================ */
+
+html,
+body {
+  overflow: hidden;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  background-color: var(--color-background);
+  color: var(--color-brand-text);
+  font-family: var(--font-body);
+}
+
+* {
+  touch-action: manipulation;
+}
+
+/* ============================================================ */
+/* Animated gradient mesh background                             */
+/* ============================================================ */
+
+.gradient-mesh {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(217, 75, 140, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 85% 80%, rgba(194, 24, 91, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(249, 168, 212, 0.08) 0%, transparent 70%),
+    var(--color-background);
+}
+
+.gradient-mesh-animated {
+  position: relative;
+  overflow: hidden;
+}
+
+.gradient-mesh-animated::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(ellipse 40% 40% at 30% 30%, rgba(217, 75, 140, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 35% at 70% 70%, rgba(194, 24, 91, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 30% at 50% 50%, rgba(249, 168, 212, 0.10) 0%, transparent 60%);
+  animation: mesh-drift 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes mesh-drift {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(5%, -3%) rotate(2deg) scale(1.05); }
+  66% { transform: translate(-3%, 5%) rotate(-1deg) scale(0.98); }
+  100% { transform: translate(2%, -2%) rotate(1deg) scale(1.02); }
+}
+
+/* ============================================================ */
+/* Glass morphism                                                */
+/* ============================================================ */
+
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 4px 24px rgba(74, 13, 46, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 8px 40px rgba(74, 13, 46, 0.08),
+    0 2px 8px rgba(74, 13, 46, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.glass-key {
+  background: rgba(255, 255, 255, 0.70);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 2px 8px rgba(74, 13, 46, 0.06),
+    0 1px 2px rgba(74, 13, 46, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.glass-key:active {
+  background: rgba(217, 75, 140, 0.12);
+  box-shadow:
+    0 1px 4px rgba(74, 13, 46, 0.08),
+    inset 0 1px 2px rgba(74, 13, 46, 0.06);
+  transform: scale(0.96);
+}
+
+/* ============================================================ */
+/* Glow effects                                                  */
+/* ============================================================ */
+
+.glow-primary {
+  box-shadow:
+    0 0 20px rgba(217, 75, 140, 0.25),
+    0 0 60px rgba(217, 75, 140, 0.10),
+    0 4px 16px rgba(217, 75, 140, 0.15);
+}
+
+.glow-cta {
+  box-shadow:
+    0 0 20px rgba(194, 24, 91, 0.30),
+    0 0 60px rgba(194, 24, 91, 0.12),
+    0 4px 16px rgba(194, 24, 91, 0.20);
+}
+
+.glow-cta-lg {
+  box-shadow:
+    0 0 30px rgba(194, 24, 91, 0.35),
+    0 0 80px rgba(194, 24, 91, 0.15),
+    0 8px 32px rgba(194, 24, 91, 0.25);
+}
+
+/* ============================================================ */
+/* Premium card elevation                                        */
+/* ============================================================ */
+
+.card-elevated {
+  box-shadow:
+    0 1px 3px rgba(74, 13, 46, 0.04),
+    0 4px 12px rgba(74, 13, 46, 0.06),
+    0 12px 32px rgba(74, 13, 46, 0.04);
+}
+
+.card-elevated-active {
+  box-shadow:
+    0 2px 8px rgba(194, 24, 91, 0.12),
+    0 8px 24px rgba(194, 24, 91, 0.10),
+    0 0 0 2px rgba(194, 24, 91, 0.20);
+}
+
+/* ============================================================ */
+/* Subtle noise texture overlay                                  */
+/* ============================================================ */
+
+.texture-noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================================ */
+/* Shimmer animation for loading / highlight                     */
+/* ============================================================ */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(217, 75, 140, 0.08) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ============================================================ */
+/* Breath animation for idle CTA                                 */
+/* ============================================================ */
+
+@keyframes breath {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.08); opacity: 0.8; }
+}
+
+@keyframes breath-subtle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* ============================================================ */
+/* Custom scrollbar (thin, branded)                              */
+/* ============================================================ */
+
+.scrollbar-branded::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-branded::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-branded::-webkit-scrollbar-thumb {
+  background: rgba(217, 75, 140, 0.2);
+  border-radius: 3px;
+}
+
+.scrollbar-branded {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(217, 75, 140, 0.2) transparent;
+}
+
+/* ============================================================ */
+/* Apple Liquid Glass — static displacement map approach         */
+/* Inspired by Den Dionigi's CodePen implementation              */
+/* ============================================================ */
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px) saturate(1.2);
+  -webkit-backdrop-filter: blur(15px) saturate(1.2);
+  border: 2.5px solid rgba(255, 255, 255, 0.30);
+  box-shadow:
+    /* specular top-left catch — bright thick edge */
+    inset 2px 3px 6px rgba(255, 255, 255, 0.50),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.60),
+    /* softer inner glow all around — glass tube depth */
+    inset 0 0 24px rgba(255, 255, 255, 0.12),
+    inset 0 0 8px rgba(255, 255, 255, 0.08),
+    /* bottom-right darker edge — refraction shadow */
+    inset -2px -3px 6px rgba(0, 0, 0, 0.15),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.10),
+    /* outer glow — floating off surface */
+    0 0 40px rgba(255, 255, 255, 0.06),
+    0 12px 48px rgba(0, 0, 0, 0.18),
+    /* outer ring — thick glass edge illusion */
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+/* Inner ring border — glass depth */
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 33px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-top-color: rgba(255, 255, 255, 0.35);
+  border-left-color: rgba(255, 255, 255, 0.28);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Specular highlight streak across top — like light hitting a bubble */
+.liquid-glass::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 10%;
+  right: 10%;
+  height: 40px;
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.06) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================================ */
+/* Timeout overlay                                                */
+/* ============================================================ */
+
+.timeout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 13, 46, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
