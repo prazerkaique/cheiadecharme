@@ -1,0 +1,224 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Cheia de Charme — Rosa Monochrome */
+  --color-primary: #D94B8C;
+  --color-primary-foreground: #FFFFFF;
+  --color-primary-soft: #E87AAF;
+  --color-secondary: #F5B8D3;
+  --color-secondary-foreground: #6B1A3A;
+  --color-cta: #C2185B;
+  --color-cta-foreground: #FFFFFF;
+  --color-cta-soft: #E91E80;
+  --color-background: #FFF5F9;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFFBFE;
+  --color-brand-text: #4A0D2E;
+  --color-brand-text-muted: #7B2D52;
+  --color-brand-border: #F9D1E2;
+  --color-glass: rgba(255, 255, 255, 0.65);
+  --color-glass-border: rgba(217, 75, 140, 0.15);
+
+  /* Status */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+
+  /* Tipografia */
+  --font-display: "Outfit", sans-serif;
+  --font-body: "Nunito", sans-serif;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* Professional layout zones */
+  --pro-header-h: 64px;
+  --pro-max-w: 480px;
+
+  /* Typographic scale */
+  --text-title: 24px;
+  --text-subtitle: 18px;
+  --text-body: 15px;
+  --text-small: 13px;
+  --text-clock: 20px;
+}
+
+/* ============================================================ */
+/* Base styles                                                   */
+/* ============================================================ */
+
+html,
+body {
+  background-color: var(--color-background);
+  color: var(--color-brand-text);
+  font-family: var(--font-body);
+}
+
+/* ============================================================ */
+/* Animated gradient mesh background                             */
+/* ============================================================ */
+
+.gradient-mesh {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(217, 75, 140, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 85% 80%, rgba(194, 24, 91, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(249, 168, 212, 0.08) 0%, transparent 70%),
+    var(--color-background);
+}
+
+.gradient-mesh-animated {
+  position: relative;
+  overflow-x: hidden;
+}
+
+.gradient-mesh-animated::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(ellipse 40% 40% at 30% 30%, rgba(217, 75, 140, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 35% at 70% 70%, rgba(194, 24, 91, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 30% at 50% 50%, rgba(249, 168, 212, 0.10) 0%, transparent 60%);
+  animation: mesh-drift 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes mesh-drift {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(5%, -3%) rotate(2deg) scale(1.05); }
+  66% { transform: translate(-3%, 5%) rotate(-1deg) scale(0.98); }
+  100% { transform: translate(2%, -2%) rotate(1deg) scale(1.02); }
+}
+
+/* ============================================================ */
+/* Glass morphism                                                */
+/* ============================================================ */
+
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 4px 24px rgba(74, 13, 46, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 8px 40px rgba(74, 13, 46, 0.08),
+    0 2px 8px rgba(74, 13, 46, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* ============================================================ */
+/* Glow effects                                                  */
+/* ============================================================ */
+
+.glow-primary {
+  box-shadow:
+    0 0 20px rgba(217, 75, 140, 0.25),
+    0 0 60px rgba(217, 75, 140, 0.10),
+    0 4px 16px rgba(217, 75, 140, 0.15);
+}
+
+.glow-cta {
+  box-shadow:
+    0 0 20px rgba(194, 24, 91, 0.30),
+    0 0 60px rgba(194, 24, 91, 0.12),
+    0 4px 16px rgba(194, 24, 91, 0.20);
+}
+
+.glow-cta-lg {
+  box-shadow:
+    0 0 30px rgba(194, 24, 91, 0.35),
+    0 0 80px rgba(194, 24, 91, 0.15),
+    0 8px 32px rgba(194, 24, 91, 0.25);
+}
+
+/* ============================================================ */
+/* Pulse glow for active service                                 */
+/* ============================================================ */
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 30px rgba(194, 24, 91, 0.35),
+      0 0 80px rgba(194, 24, 91, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 50px rgba(194, 24, 91, 0.50),
+      0 0 120px rgba(194, 24, 91, 0.25);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ============================================================ */
+/* Progress bar animation                                        */
+/* ============================================================ */
+
+@keyframes progress-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.progress-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary-soft) 50%,
+    var(--color-primary) 100%
+  );
+  background-size: 200% 100%;
+  animation: progress-shimmer 2s ease-in-out infinite;
+}
+
+/* ============================================================ */
+/* Scrollbar                                                     */
+/* ============================================================ */
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(217, 75, 140, 0.2);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 75, 140, 0.35);
+}
+
+/* ============================================================ */
+/* Overlay                                                       */
+/* ============================================================ */
+
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 13, 46, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
