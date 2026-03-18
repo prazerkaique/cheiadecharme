@@ -87,7 +87,7 @@ export async function claimPrize(
       await supabase.from("charme_transactions").insert({
         client_id: clientId,
         store_id: STORE_ID,
-        type: "earned",
+        type: "earn",
         amount: prize.value,
         description: `Prêmio Cheia de Sorte: ${prize.label}`,
       });

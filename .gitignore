@@ -32,3 +32,4 @@ pnpm-debug.log*
 # Reference files (not source code)
 files/
 files.zip
+.vercel

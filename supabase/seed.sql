@@ -602,3 +602,29 @@ VALUES
    15, NULL,
    'c0000000-0000-0000-0000-000000000011',
    now() - interval '3 days', now() + interval '45 days', true);
+
+-- ---------------------------------------------------------------------------
+-- GAME CONFIG
+-- ---------------------------------------------------------------------------
+
+INSERT INTO game_configs (store_id, spin_cost_cents, prizes, logo_url, is_active)
+VALUES (
+  'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  500,
+  '[
+    {"id":"prize-1","label":"10% Desconto","type":"discount_percent","value":10,"color":"#FFFFFF","weight":20},
+    {"id":"prize-2","label":"20% Desconto","type":"discount_percent","value":20,"color":"#F5B8D3","weight":12},
+    {"id":"prize-3","label":"30% Desconto","type":"discount_percent","value":30,"color":"#FFFFFF","weight":6},
+    {"id":"prize-4","label":"Hidratação Grátis","type":"free_service","value":0,"color":"#C2185B","weight":3},
+    {"id":"prize-5","label":"Escova Grátis","type":"free_service","value":0,"color":"#FFFFFF","weight":4},
+    {"id":"prize-6","label":"+10 Charmes","type":"charmes","value":10,"color":"#F5B8D3","weight":15},
+    {"id":"prize-7","label":"+25 Charmes","type":"charmes","value":25,"color":"#FFFFFF","weight":10},
+    {"id":"prize-8","label":"+50 Charmes","type":"charmes","value":50,"color":"#C2185B","weight":5},
+    {"id":"prize-9","label":"50% Desconto","type":"discount_percent","value":50,"color":"#FFFFFF","weight":8},
+    {"id":"prize-10","label":"Tente Novamente","type":"try_again","value":0,"color":"#F5B8D3","weight":15},
+    {"id":"prize-11","label":"Corte Grátis","type":"free_service","value":0,"color":"#FFFFFF","weight":2},
+    {"id":"prize-12","label":"+100 Charmes","type":"charmes","value":100,"color":"#C2185B","weight":3}
+  ]'::jsonb,
+  NULL,
+  true
+);
