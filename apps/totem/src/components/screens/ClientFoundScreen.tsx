@@ -162,6 +162,7 @@ export default function ClientFoundScreen() {
   const closeWallet = useKioskStore((s) => s.closeWallet);
   const openBuyCharmes = useKioskStore((s) => s.openBuyCharmes);
   const closeBuyCharmes = useKioskStore((s) => s.closeBuyCharmes);
+  const addCharmes = useKioskStore((s) => s.addCharmes);
 
   const hasAppointments = todayAppointments.length > 0;
 
@@ -285,7 +286,7 @@ export default function ClientFoundScreen() {
       )}
 
       {/* Charmes Buy Modal */}
-      {showBuyCharmes && <CharmesBuyModal onClose={closeBuyCharmes} />}
+      {showBuyCharmes && <CharmesBuyModal onClose={closeBuyCharmes} onPaid={addCharmes} />}
     </ScreenLayout>
   );
 }

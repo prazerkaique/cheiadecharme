@@ -49,16 +49,19 @@ export function HomeScreen() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease }}
           onClick={goToActive}
-          className="w-full glass-strong rounded-[var(--radius-lg)] p-4 flex items-center gap-3 pulse-glow"
+          className="w-full rounded-[var(--radius-lg)] p-4 flex items-center gap-3 pulse-glow"
+          style={{
+            background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-cta) 100%)",
+          }}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-            <Zap size={20} className="text-primary" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+            <Zap size={20} className="text-white" />
           </div>
           <div className="flex-1 text-left">
-            <p className="text-[var(--text-small)] font-bold uppercase tracking-wide text-primary">
+            <p className="text-[var(--text-small)] font-bold uppercase tracking-wide text-white/80">
               Atendimento em andamento
             </p>
-            <p className="text-[var(--text-body)] font-semibold text-brand-text">
+            <p className="text-[var(--text-body)] font-semibold text-white">
               {active.client_name} — {active.service_name}
             </p>
           </div>

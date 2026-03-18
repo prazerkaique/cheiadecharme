@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Clock, Play } from "lucide-react";
+import { Clock, Play, Hourglass } from "lucide-react";
 import type { ScheduleSlot } from "@/types/professional";
 import { Avatar } from "@/components/ui/Avatar";
 import { formatTimeFromIso, formatDuration } from "@/lib/format";
@@ -15,7 +15,10 @@ interface ClientCardProps {
 }
 
 export function ClientCard({ slot, index }: ClientCardProps) {
-  const goToTicket = useProfessionalStore((s) => s.goToTicket);
+  const setConfirmDialog = useProfessionalStore((s) => s.setConfirmDialog);
+  const directedSlotId = useProfessionalStore((s) => s.directedSlotId);
+
+  const isDirected = slot.id === directedSlotId;
 
   return (
     <motion.div
@@ -41,12 +44,19 @@ export function ClientCard({ slot, index }: ClientCardProps) {
         </div>
       </div>
 
-      <button
-        onClick={() => goToTicket(slot.id)}
-        className="shrink-0 flex h-10 w-10 items-center justify-center rounded-full bg-cta text-white transition hover:bg-cta-soft glow-cta"
-      >
-        <Play size={18} fill="white" />
-      </button>
+      {isDirected ? (
+        <button
+          onClick={() => setConfirmDialog({ type: "call", slotId: slot.id })}
+          className="shrink-0 flex h-10 w-10 items-center justify-center rounded-full bg-cta text-white transition hover:bg-cta-soft glow-cta"
+        >
+          <Play size={18} fill="white" />
+        </button>
+      ) : (
+        <span className="shrink-0 flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1.5 text-[11px] font-bold text-warning">
+          <Hourglass size={12} />
+          Na fila
+        </span>
+      )}
     </motion.div>
   );
 }

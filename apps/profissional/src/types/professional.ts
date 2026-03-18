@@ -1,6 +1,6 @@
 export type ProfessionalAvailability = "available" | "busy";
 
-export type ScheduleSlotStatus = "completed" | "in_progress" | "waiting" | "scheduled";
+export type ScheduleSlotStatus = "completed" | "in_progress" | "waiting" | "checked_in" | "scheduled";
 
 export interface ProfessionalProfile {
   id: string;
@@ -17,6 +17,7 @@ export interface ScheduleSlot {
   estimated_end_at: string;
   client_name: string;
   client_id: string;
+  service_id: string;
   service_name: string;
   service_category: string;
   duration_minutes: number;
@@ -31,6 +32,7 @@ export interface WaitingQueueItem {
   id: string;
   client_name: string;
   client_id: string;
+  service_id: string;
   service_name: string;
   service_category: string;
   duration_minutes: number;

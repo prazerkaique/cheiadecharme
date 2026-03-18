@@ -14,6 +14,7 @@ import { formatCharmes } from "@/lib/format";
 export interface CharmesBuyModalProps {
   deficit?: number;
   onClose: () => void;
+  onPaid?: (charmesBought: number) => void;
 }
 
 type BuyStep = "select" | "pix" | "card";
@@ -96,7 +97,7 @@ function formatBRL(value: number): string {
 // Component
 // ---------------------------------------------------------------------------
 
-export default function CharmesBuyModal({ deficit, onClose }: CharmesBuyModalProps) {
+export default function CharmesBuyModal({ deficit, onClose, onPaid }: CharmesBuyModalProps) {
   const [step, setStep] = useState<BuyStep>("select");
   const [selectedPack, setSelectedPack] = useState<PackOption | null>(null);
 
@@ -144,11 +145,11 @@ export default function CharmesBuyModal({ deficit, onClose }: CharmesBuyModalPro
           )}
 
           {step === "pix" && selectedPack && (
-            <PixStep pack={selectedPack} onBack={() => setStep("select")} />
+            <PixStep pack={selectedPack} onBack={() => setStep("select")} onPaid={onPaid} />
           )}
 
           {step === "card" && selectedPack && (
-            <CardStep pack={selectedPack} onBack={() => setStep("select")} />
+            <CardStep pack={selectedPack} onBack={() => setStep("select")} onPaid={onPaid} />
           )}
         </motion.div>
       </motion.div>
@@ -574,7 +575,7 @@ function SelectStep({
 // PixStep
 // ---------------------------------------------------------------------------
 
-function PixStep({ pack, onBack }: { pack: PackOption; onBack: () => void }) {
+function PixStep({ pack, onBack, onPaid }: { pack: PackOption; onBack: () => void; onPaid?: (charmes: number) => void }) {
   const mockPixPayload = `00020126580014br.gov.bcb.pix0136mock-${pack.charmes}-charmes-${Date.now()}`;
 
   return (
@@ -603,6 +604,24 @@ function PixStep({ pack, onBack }: { pack: PackOption; onBack: () => void }) {
         </span>
       </div>
 
+      {/* Test: Simulate payment */}
+      <button
+        type="button"
+        onPointerDown={(e) => {
+          e.preventDefault();
+          onPaid?.(pack.charmes);
+        }}
+        className="w-full flex items-center justify-center gap-3 font-body font-semibold text-white active:scale-[0.98] transition-all duration-150"
+        style={{
+          minHeight: "90px",
+          borderRadius: "22px",
+          fontSize: "28px",
+          background: "linear-gradient(to right, #16a34a, #22c55e)",
+        }}
+      >
+        Simular Pix Pago
+      </button>
+
       {/* Back */}
       <button
         type="button"
@@ -627,7 +646,7 @@ function PixStep({ pack, onBack }: { pack: PackOption; onBack: () => void }) {
 // CardStep
 // ---------------------------------------------------------------------------
 
-function CardStep({ pack, onBack }: { pack: PackOption; onBack: () => void }) {
+function CardStep({ pack, onBack, onPaid }: { pack: PackOption; onBack: () => void; onPaid?: (charmes: number) => void }) {
   return (
     <>
       <h2
@@ -662,6 +681,24 @@ function CardStep({ pack, onBack }: { pack: PackOption; onBack: () => void }) {
           Aguardando pagamento...
         </span>
       </div>
+
+      {/* Test: Simulate payment */}
+      <button
+        type="button"
+        onPointerDown={(e) => {
+          e.preventDefault();
+          onPaid?.(pack.charmes);
+        }}
+        className="w-full flex items-center justify-center gap-3 font-body font-semibold text-white active:scale-[0.98] transition-all duration-150"
+        style={{
+          minHeight: "90px",
+          borderRadius: "22px",
+          fontSize: "28px",
+          background: "linear-gradient(to right, #16a34a, #22c55e)",
+        }}
+      >
+        Simular Pagamento
+      </button>
 
       {/* Back */}
       <button

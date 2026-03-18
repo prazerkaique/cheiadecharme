@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  /* ─── Base: Neutral Gray (barberOS-inspired) ─── */
+  --color-background: #F9FAFB;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F3F4F6;
+  --color-surface-muted: #F9FAFB;
+
+  /* ─── Brand Accent: Cheia de Charme Pink ─── */
+  --color-primary: #EC4899;
+  --color-primary-foreground: #FFFFFF;
+  --color-primary-soft: #FDF2F8;
+
+  /* ─── CTA: Black/White (barberOS pattern) ─── */
+  --color-cta: #000000;
+  --color-cta-foreground: #FFFFFF;
+
+  /* ─── Text ─── */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-muted: #9CA3AF;
+
+  /* ─── Borders ─── */
+  --color-border: #E5E7EB;
+  --color-border-light: #F3F4F6;
+
+  /* ─── Status ─── */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+
+  /* ─── Badge colors ─── */
+  --color-emerald-bg: rgba(16, 185, 129, 0.1);
+  --color-blue-bg: rgba(59, 130, 246, 0.1);
+  --color-yellow-bg: rgba(245, 158, 11, 0.1);
+  --color-red-bg: rgba(239, 68, 68, 0.1);
+
+  /* ─── Layout ─── */
+  --sidebar-w: 260px;
+  --sidebar-collapsed-w: 72px;
+  --topbar-h: 64px;
+  --content-max-w: 1400px;
+}
+
+/* ─── Base ─── */
+html,
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ─── Card ─── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+}
+
+.card-md {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+}
+
+/* ─── Scrollbar ─── */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Overlay ─── */
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ─── Animate-in (Tailwind compatible) ─── */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}

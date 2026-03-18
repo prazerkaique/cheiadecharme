@@ -260,7 +260,7 @@ export default function IdleScreen() {
 
             {/* Helper text */}
             <p
-              className="font-body text-[24px] text-center"
+              className="relative z-10 font-body text-[24px] text-center"
               style={{ color: "rgba(255,255,255,0.55)" }}
             >
               Agende seu horário&nbsp;&nbsp;•&nbsp;&nbsp;Faça check-in

@@ -157,6 +157,7 @@ interface KioskState {
   closeWallet: () => void;
   openBuyCharmes: (deficit?: number) => void;
   closeBuyCharmes: () => void;
+  addCharmes: (amount: number) => void;
 
   reset: () => void;
 }
@@ -196,6 +197,7 @@ type KioskData = Omit<
   | "closeWallet"
   | "openBuyCharmes"
   | "closeBuyCharmes"
+  | "addCharmes"
   | "reset"
 >;
 
@@ -334,6 +336,11 @@ export const useKioskStore = create<KioskState>()((set) => ({
   closeWallet: () => set({ showWallet: false }),
   openBuyCharmes: (deficit) => set({ showWallet: false, showBuyCharmes: true, buyCharmesDeficit: deficit ?? null }),
   closeBuyCharmes: () => set({ showBuyCharmes: false, buyCharmesDeficit: null }),
+  addCharmes: (amount) => set((state) => ({
+    client: state.client ? { ...state.client, balance_charmes: state.client.balance_charmes + amount } : null,
+    showBuyCharmes: false,
+    buyCharmesDeficit: null,
+  })),
 
   // -- Reset ----------------------------------------------------------------
 

@@ -11,11 +11,35 @@ import { EarningsScreen } from "@/components/screens/EarningsScreen";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
+const DIALOG_CONFIG = {
+  complete: {
+    title: "Finalizar Atendimento?",
+    description: "O atendimento sera marcado como concluido.",
+    confirmLabel: "Finalizar",
+  },
+  call: {
+    title: "Iniciar Atendimento?",
+    description: "Voce sera direcionado para validar o ticket do cliente.",
+    confirmLabel: "Iniciar",
+  },
+} as const;
+
 export function AppShell() {
   const screen = useProfessionalStore((s) => s.screen);
   const confirmDialog = useProfessionalStore((s) => s.confirmDialog);
   const setConfirmDialog = useProfessionalStore((s) => s.setConfirmDialog);
   const completeService = useProfessionalStore((s) => s.completeService);
+  const goToTicket = useProfessionalStore((s) => s.goToTicket);
+
+  const handleConfirm = () => {
+    if (!confirmDialog) return;
+    if (confirmDialog.type === "complete") {
+      completeService(confirmDialog.slotId);
+    } else {
+      setConfirmDialog(null);
+      goToTicket(confirmDialog.slotId);
+    }
+  };
 
   return (
     <>
@@ -37,11 +61,9 @@ export function AppShell() {
 
       {confirmDialog && (
         <ConfirmDialog
-          title="Finalizar Atendimento?"
-          description="O atendimento sera marcado como concluido."
-          confirmLabel="Finalizar"
+          {...DIALOG_CONFIG[confirmDialog.type]}
           variant="primary"
-          onConfirm={() => completeService(confirmDialog.slotId)}
+          onConfirm={handleConfirm}
           onCancel={() => setConfirmDialog(null)}
         />
       )}

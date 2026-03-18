@@ -5,24 +5,15 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { Clock } from "@phosphor-icons/react";
 import { useKioskStore } from "@/store/kiosk-store";
-import type { KioskAppointment } from "@/store/kiosk-store";
 import ScreenLayout from "@/components/kiosk/ScreenLayout";
 import CharmesBadge from "@/components/kiosk/CharmesBadge";
 import CharmesWalletModal, {
   MOCK_TRANSACTIONS,
 } from "@/components/kiosk/CharmesWalletModal";
 import CharmesBuyModal from "@/components/kiosk/CharmesBuyModal";
+import { createAppointment } from "@/lib/queries/appointments";
 
 import { formatCharmes } from "@/lib/format";
-
-function generateMockAppointment(): KioskAppointment {
-  return {
-    id: crypto.randomUUID(),
-    ticket_number: `#${String(Math.floor(Math.random() * 999) + 1).padStart(3, "0")}`,
-    qr_code: crypto.randomUUID(),
-    queue_position: Math.floor(Math.random() * 5) + 1,
-  };
-}
 
 // ---------------------------------------------------------------------------
 // Animation variants — staggered entry for content sections
@@ -62,6 +53,7 @@ export default function ConfirmScreen() {
   const closeWallet = useKioskStore((s) => s.closeWallet);
   const openBuyCharmes = useKioskStore((s) => s.openBuyCharmes);
   const closeBuyCharmes = useKioskStore((s) => s.closeBuyCharmes);
+  const addCharmes = useKioskStore((s) => s.addCharmes);
 
   const [smsOptIn, setSmsOptIn] = useState(true);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -79,12 +71,19 @@ export default function ConfirmScreen() {
   const insufficientBalance = client !== null && client.balance_charmes < cartTotal;
   const deficit = insufficientBalance ? cartTotal - client.balance_charmes : 0;
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (isConfirming || insufficientBalance) return;
     setIsConfirming(true);
-    setTimeout(() => {
-      appointmentConfirmed(generateMockAppointment());
-    }, 900);
+    try {
+      const appointment = await createAppointment(
+        client!.id,
+        cart,
+        professionalsByService
+      );
+      appointmentConfirmed(appointment);
+    } catch {
+      setIsConfirming(false);
+    }
   }
 
   function handleBack() {
@@ -328,6 +327,7 @@ export default function ConfirmScreen() {
           <CharmesBuyModal
             deficit={buyCharmesDeficit ?? undefined}
             onClose={closeBuyCharmes}
+            onPaid={addCharmes}
           />
         )}
       </div>

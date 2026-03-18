@@ -6,6 +6,7 @@ import { useKioskStore } from "@/store/kiosk-store";
 import QwertyKeyboard from "@/components/kiosk/QwertyKeyboard";
 import NumericKeypad from "@/components/kiosk/NumericKeypad";
 import ScreenLayout from "@/components/kiosk/ScreenLayout";
+import { registerClient } from "@/lib/queries/clients";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -216,35 +217,54 @@ export default function RegisterScreen() {
     2: isPhoneValid(registerPhone),
   };
 
-  const isLastStep = formStep === 2;
+  // Skip steps that were already pre-filled from the identify screen
+  const cpfPreFilled = identifyMethod === "cpf" && registerCpf.length === 11;
+  const phonePreFilled = identifyMethod === "phone" && registerPhone.length === 11;
+
+  const isLastStep = getNextStep(formStep) === null;
   const currentStepValid = stepValid[formStep];
+  const hasPrevStep = getPrevStep(formStep) !== null;
 
   // ---------------------------------------------------------------------------
   // Navigation
   // ---------------------------------------------------------------------------
 
+  function getNextStep(current: FormStep): FormStep | null {
+    let next = current + 1;
+    if (next === 1 && cpfPreFilled) next = 2;
+    if (next === 2 && phonePreFilled) return null; // no more steps
+    return next <= 2 ? (next as FormStep) : null;
+  }
+
+  function getPrevStep(current: FormStep): FormStep | null {
+    let prev = current - 1;
+    if (prev === 1 && cpfPreFilled) prev = 0;
+    return prev >= 0 ? (prev as FormStep) : null;
+  }
+
   function goNext() {
-    if (formStep < 2) {
+    const next = getNextStep(formStep);
+    if (next !== null) {
       setDirection(1);
-      setFormStep((prev) => (prev + 1) as FormStep);
+      setFormStep(next);
     }
   }
 
   function goPrev() {
-    if (formStep > 0) {
+    const prev = getPrevStep(formStep);
+    if (prev !== null) {
       setDirection(-1);
-      setFormStep((prev) => (prev - 1) as FormStep);
+      setFormStep(prev);
     }
   }
 
-  function handleRegister() {
-    clientRegistered({
-      id: "new-" + Date.now(),
+  async function handleRegister() {
+    const client = await registerClient({
       name: registerName,
       cpf: registerCpf || null,
       phone: registerPhone || null,
-      balance_charmes: 0,
     });
+    clientRegistered(client);
   }
 
   // ---------------------------------------------------------------------------
@@ -265,7 +285,7 @@ export default function RegisterScreen() {
         disabled: !currentStepValid,
       }}
       secondaryAction={
-        formStep > 0
+        hasPrevStep
           ? { label: "Voltar", onClick: goPrev }
           : undefined
       }

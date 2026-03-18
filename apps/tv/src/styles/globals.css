@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Cheia de Charme — Rosa Monochrome (do logo) */
+  --color-primary: #D94B8C;
+  --color-primary-foreground: #FFFFFF;
+  --color-primary-soft: #E87AAF;
+  --color-secondary: #F5B8D3;
+  --color-secondary-foreground: #6B1A3A;
+  --color-cta: #C2185B;
+  --color-cta-foreground: #FFFFFF;
+  --color-cta-soft: #E91E80;
+  --color-background: #FFF5F9;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFFBFE;
+  --color-brand-text: #4A0D2E;
+  --color-brand-text-muted: #7B2D52;
+  --color-brand-border: #F9D1E2;
+  --color-glass: rgba(255, 255, 255, 0.65);
+  --color-glass-border: rgba(217, 75, 140, 0.15);
+
+  /* Status */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+
+  /* Tipografia */
+  --font-display: "Outfit", sans-serif;
+  --font-body: "Nunito", sans-serif;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* TV layout zones (1920x1080 landscape) */
+  --tv-header-h: 72px;
+  --tv-footer-h: 48px;
+  --tv-ticker-h: 40px;
+  --tv-margin-x: 32px;
+  --tv-column-gap: 16px;
+
+  /* TV typographic scale (legível a 3m) */
+  --text-title: 28px;
+  --text-subtitle: 22px;
+  --text-body: 18px;
+  --text-small: 16px;
+  --text-clock: 24px;
+  --text-call-name: 72px;
+  --text-call-detail: 36px;
+  --text-ticker: 18px;
+}
+
+/* ============================================================ */
+/* Base TV styles                                                */
+/* ============================================================ */
+
+html,
+body {
+  overflow: hidden;
+  user-select: none;
+  background-color: var(--color-background);
+  color: var(--color-brand-text);
+  font-family: var(--font-body);
+}
+
+/* ============================================================ */
+/* Animated gradient mesh background                             */
+/* ============================================================ */
+
+.gradient-mesh {
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(217, 75, 140, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 85% 80%, rgba(194, 24, 91, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(249, 168, 212, 0.08) 0%, transparent 70%),
+    var(--color-background);
+}
+
+.gradient-mesh-animated {
+  position: relative;
+  overflow: hidden;
+}
+
+.gradient-mesh-animated::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background:
+    radial-gradient(ellipse 40% 40% at 30% 30%, rgba(217, 75, 140, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 35% at 70% 70%, rgba(194, 24, 91, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 30% at 50% 50%, rgba(249, 168, 212, 0.10) 0%, transparent 60%);
+  animation: mesh-drift 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes mesh-drift {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(5%, -3%) rotate(2deg) scale(1.05); }
+  66% { transform: translate(-3%, 5%) rotate(-1deg) scale(0.98); }
+  100% { transform: translate(2%, -2%) rotate(1deg) scale(1.02); }
+}
+
+/* ============================================================ */
+/* Glass morphism                                                */
+/* ============================================================ */
+
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 4px 24px rgba(74, 13, 46, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 8px 40px rgba(74, 13, 46, 0.08),
+    0 2px 8px rgba(74, 13, 46, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* ============================================================ */
+/* Glow effects                                                  */
+/* ============================================================ */
+
+.glow-primary {
+  box-shadow:
+    0 0 20px rgba(217, 75, 140, 0.25),
+    0 0 60px rgba(217, 75, 140, 0.10),
+    0 4px 16px rgba(217, 75, 140, 0.15);
+}
+
+.glow-cta {
+  box-shadow:
+    0 0 20px rgba(194, 24, 91, 0.30),
+    0 0 60px rgba(194, 24, 91, 0.12),
+    0 4px 16px rgba(194, 24, 91, 0.20);
+}
+
+.glow-cta-lg {
+  box-shadow:
+    0 0 30px rgba(194, 24, 91, 0.35),
+    0 0 80px rgba(194, 24, 91, 0.15),
+    0 8px 32px rgba(194, 24, 91, 0.25);
+}
+
+/* ============================================================ */
+/* Timeout/Call overlay                                           */
+/* ============================================================ */
+
+.timeout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 13, 46, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ============================================================ */
+/* Ticker scroll animation                                       */
+/* ============================================================ */
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-scroll {
+  animation: ticker-scroll 30s linear infinite;
+}
+
+/* ============================================================ */
+/* Pulse glow for call modal                                     */
+/* ============================================================ */
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 30px rgba(194, 24, 91, 0.35),
+      0 0 80px rgba(194, 24, 91, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 50px rgba(194, 24, 91, 0.50),
+      0 0 120px rgba(194, 24, 91, 0.25);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ============================================================ */
+/* Texture noise overlay                                         */
+/* ============================================================ */
+
+.texture-noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}

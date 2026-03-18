@@ -5,6 +5,7 @@ import { CreditCard, DeviceMobileCamera } from "@phosphor-icons/react";
 import NumericKeypad from "@/components/kiosk/NumericKeypad";
 import ScreenLayout from "@/components/kiosk/ScreenLayout";
 import { useKioskStore, type IdentifyMethod } from "@/store/kiosk-store";
+import { lookupClient } from "@/lib/queries/clients";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -228,55 +229,14 @@ export default function IdentifyScreen() {
       ? isInputValid(inputValue, identifyMethod)
       : false;
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (!isValid) return;
 
-    if (inputValue === "11111111111") {
-      // Maria Silva — COM 3 agendamentos
-      const today = new Date().toISOString().slice(0, 10);
-      clientFound(
-        {
-          id: "mock-maria",
-          name: "Maria Silva",
-          cpf: "111.111.111-11",
-          phone: "(21) 99999-0000",
-          balance_charmes: 500,
-        },
-        [
-          {
-            id: "apt-1",
-            service_name: "Escova Progressiva",
-            scheduled_at: `${today}T14:30:00`,
-            professional_name: "Ana Paula",
-          },
-          {
-            id: "apt-2",
-            service_name: "Manicure em Gel",
-            scheduled_at: `${today}T15:45:00`,
-            professional_name: "Juliana Costa",
-          },
-          {
-            id: "apt-3",
-            service_name: "Hidratação Profunda",
-            scheduled_at: `${today}T16:30:00`,
-            professional_name: null,
-          },
-        ]
-      );
-    } else if (inputValue === "00000000000") {
-      // Joana Santos — SEM agendamentos
-      clientFound(
-        {
-          id: "mock-joana",
-          name: "Joana Santos",
-          cpf: "000.000.000-00",
-          phone: "(21) 98888-0000",
-          balance_charmes: 120,
-        },
-        []
-      );
+    const result = await lookupClient(inputValue, identifyMethod!);
+
+    if (result) {
+      clientFound(result.client, result.appointments);
     } else {
-      // Não encontrado → cadastro
       clientNotFound();
     }
   }

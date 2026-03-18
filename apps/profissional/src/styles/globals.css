@@ -152,18 +152,18 @@ body {
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow:
-      0 0 30px rgba(194, 24, 91, 0.35),
-      0 0 80px rgba(194, 24, 91, 0.15);
+      0 0 12px rgba(217, 75, 140, 0.20),
+      0 4px 16px rgba(217, 75, 140, 0.10);
   }
   50% {
     box-shadow:
-      0 0 50px rgba(194, 24, 91, 0.50),
-      0 0 120px rgba(194, 24, 91, 0.25);
+      0 0 20px rgba(217, 75, 140, 0.30),
+      0 4px 20px rgba(217, 75, 140, 0.15);
   }
 }
 
 .pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-glow 2.5s ease-in-out infinite;
 }
 
 /* ============================================================ */

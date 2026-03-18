@@ -9,11 +9,29 @@ export default function ProfissionalPage() {
   const tick = useProfessionalStore((s) => s.tick);
   const toasts = useProfessionalStore((s) => s.toasts);
   const dismissToast = useProfessionalStore((s) => s.dismissToast);
+  const restoreSession = useProfessionalStore((s) => s.restoreSession);
+  const unsubscribe = useProfessionalStore((s) => s.unsubscribe);
+  const restoringSession = useProfessionalStore((s) => s._restoringSession);
+
+  // Restore session on mount
+  useEffect(() => {
+    restoreSession();
+    return () => unsubscribe();
+  }, [restoreSession, unsubscribe]);
 
   useEffect(() => {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [tick]);
+
+  // Show nothing while restoring session (avoids login flash)
+  if (restoringSession) {
+    return (
+      <div className="min-h-dvh w-screen gradient-mesh-animated flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-3 border-cta border-t-transparent animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh w-screen gradient-mesh-animated">

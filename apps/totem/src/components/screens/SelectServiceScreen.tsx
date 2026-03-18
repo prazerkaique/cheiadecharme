@@ -14,43 +14,15 @@ import ScreenLayout from "@/components/kiosk/ScreenLayout";
 import ServiceCard from "@/components/kiosk/ServiceCard";
 import ProfessionalCard from "@/components/kiosk/ProfessionalCard";
 import CrossSellModal from "@/components/kiosk/CrossSellModal";
+import { useFallbackQuery } from "@/hooks/useFallbackQuery";
+import { fetchServices } from "@/lib/queries/services";
+import { fetchProfessionals } from "@/lib/queries/professionals";
 
 // ---------------------------------------------------------------------------
 // Sub-step type
 // ---------------------------------------------------------------------------
 
 type SubStep = "categories" | "services" | "professional";
-
-// ---------------------------------------------------------------------------
-// Mock data
-// ---------------------------------------------------------------------------
-
-const MOCK_SERVICES: KioskService[] = [
-  { id: "s01", name: "Corte Feminino", category: "Cabelo", price_charmes: 80, duration_minutes: 60, image_url: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=300&fit=crop" },
-  { id: "s02", name: "Corte + Escova Premium", category: "Cabelo", price_charmes: 120, duration_minutes: 90, image_url: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=300&fit=crop" },
-  { id: "s03", name: "Hidratação Capilar", category: "Cabelo", price_charmes: 90, duration_minutes: 75, image_url: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=400&h=300&fit=crop" },
-  { id: "s04", name: "Coloração Completa", category: "Cabelo", price_charmes: 180, duration_minutes: 120, image_url: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=300&fit=crop" },
-  { id: "s05", name: "Escova Botox", category: "Cabelo", price_charmes: 150, duration_minutes: 90, image_url: "https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&h=300&fit=crop" },
-  { id: "s06", name: "Manicure Completa", category: "Unhas", price_charmes: 45, duration_minutes: 45, image_url: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=300&fit=crop" },
-  { id: "s07", name: "Pedicure Completa", category: "Unhas", price_charmes: 50, duration_minutes: 50, image_url: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400&h=300&fit=crop" },
-  { id: "s08", name: "Gel nas Unhas", category: "Unhas", price_charmes: 85, duration_minutes: 70, image_url: "https://images.unsplash.com/photo-1607779097040-26e80aa78e66?w=400&h=300&fit=crop" },
-  { id: "s09", name: "Design de Sobrancelha", category: "Sobrancelha", price_charmes: 35, duration_minutes: 30, image_url: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&h=300&fit=crop" },
-  { id: "s10", name: "Henna de Sobrancelha", category: "Sobrancelha", price_charmes: 40, duration_minutes: 40, image_url: "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?w=400&h=300&fit=crop" },
-  { id: "s11", name: "Maquiagem Social", category: "Maquiagem", price_charmes: 120, duration_minutes: 60, image_url: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=300&fit=crop" },
-  { id: "s12", name: "Maquiagem para Noivas", category: "Maquiagem", price_charmes: 250, duration_minutes: 90, image_url: "https://images.unsplash.com/photo-1457972729786-0411a3b2b626?w=400&h=300&fit=crop" },
-  { id: "s13", name: "Depilação com Cera", category: "Depilação", price_charmes: 60, duration_minutes: 45, image_url: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=300&fit=crop" },
-  { id: "s14", name: "Limpeza de Pele", category: "Tratamentos", price_charmes: 110, duration_minutes: 60, image_url: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&h=300&fit=crop" },
-  { id: "s15", name: "Peeling Facial", category: "Tratamentos", price_charmes: 140, duration_minutes: 50, image_url: "https://images.unsplash.com/photo-1552693673-1bf958298935?w=400&h=300&fit=crop" },
-];
-
-const MOCK_PROFESSIONALS: KioskProfessional[] = [
-  { id: "p01", name: "Ana Silva", avatar_url: null, specialty: "Cabelo & Coloração" },
-  { id: "p02", name: "Bruna Costa", avatar_url: null, specialty: "Unhas & Nail Art" },
-  { id: "p03", name: "Carla Santos", avatar_url: null, specialty: "Sobrancelha & Make" },
-  { id: "p04", name: "Daniela Rocha", avatar_url: null, specialty: "Depilação" },
-  { id: "p05", name: "Eduarda Lima", avatar_url: null, specialty: "Cabelo & Escova" },
-  { id: "p06", name: "Fernanda Alves", avatar_url: null, specialty: "Manicure & Pedicure" },
-];
 
 // ---------------------------------------------------------------------------
 // Category data
@@ -137,6 +109,9 @@ export default function SelectServiceScreen() {
   const showCrossSellModal = useKioskStore((s) => s.showCrossSellModal);
   const hideCrossSell = useKioskStore((s) => s.hideCrossSell);
 
+  const { data: services } = useFallbackQuery(fetchServices, []);
+  const { data: professionals } = useFallbackQuery(fetchProfessionals, []);
+
   const [subStep, setSubStep] = useState<SubStep>("categories");
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [showCartDrawer, setShowCartDrawer] = useState(false);
@@ -144,8 +119,8 @@ export default function SelectServiceScreen() {
   const [currentServiceIdx, setCurrentServiceIdx] = useState(0);
 
   const filteredServices = useMemo(
-    () => MOCK_SERVICES.filter((s) => s.category === activeCategory),
-    [activeCategory]
+    () => services.filter((s) => s.category === activeCategory),
+    [services, activeCategory]
   );
 
   const cartTotal = useMemo(
@@ -163,7 +138,7 @@ export default function SelectServiceScreen() {
 
   function getCrossSellSuggestion(): KioskService | null {
     const cartIds = new Set(cart.map((s) => s.id));
-    const candidates = MOCK_SERVICES.filter((s) => !cartIds.has(s.id));
+    const candidates = services.filter((s) => !cartIds.has(s.id));
     if (candidates.length === 0) return null;
     return candidates[Math.floor(Math.random() * candidates.length)];
   }
@@ -231,16 +206,27 @@ export default function SelectServiceScreen() {
           setSubStep(cart.length > 0 ? "services" : "categories");
         };
 
-  // No footer primary action — PerServicePicker has its own confirm button
-  const primaryAction = undefined;
+  // Footer actions — dynamic based on subStep + cart
+  const hasCart = cart.length > 0;
+  const primaryAction =
+    (subStep === "categories" && hasCart)
+      ? { label: `Continuar com ${cart.length} ${cart.length === 1 ? "serviço" : "serviços"}`, onClick: handleContinue }
+      : (subStep === "services" && hasCart)
+      ? { label: "Continuar", onClick: handleContinue }
+      : undefined;
+
+  const secondaryAction =
+    (subStep === "services" && hasCart)
+      ? { label: "Adicionar mais serviços", onClick: handleBackFromServices }
+      : undefined;
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const s of MOCK_SERVICES) {
+    for (const s of services) {
       counts[s.category] = (counts[s.category] ?? 0) + 1;
     }
     return counts;
-  }, []);
+  }, [services]);
 
   return (
     <ScreenLayout
@@ -250,6 +236,7 @@ export default function SelectServiceScreen() {
       stepLabels={STEP_LABELS}
       backAction={backAction}
       primaryAction={primaryAction}
+      secondaryAction={secondaryAction}
     >
       <div className="flex flex-col h-full relative">
 
@@ -411,22 +398,6 @@ export default function SelectServiceScreen() {
                   ))}
                 </div>
 
-                {/* "Continuar" button on categories when cart has items */}
-                {cart.length > 0 && (
-                  <motion.div variants={listItemVariants} className="mt-2">
-                    <button
-                      type="button"
-                      onPointerDown={(e) => {
-                        e.preventDefault();
-                        handleContinue();
-                      }}
-                      className="w-full flex items-center justify-center gap-3 min-h-[90px] rounded-[20px] bg-gradient-to-r from-primary to-primary-soft text-white font-body text-[30px] font-semibold glow-primary active:scale-[0.98] transition-all"
-                    >
-                      Continuar com {cart.length} {cart.length === 1 ? "serviço" : "serviços"}
-                      <CaretRight size={26} weight="bold" />
-                    </button>
-                  </motion.div>
-                )}
               </motion.div>
             )}
 
@@ -466,26 +437,6 @@ export default function SelectServiceScreen() {
                   </motion.div>
                 ))}
 
-                {cart.length > 0 && (
-                  <motion.div variants={listItemVariants} className="mt-4 flex flex-col gap-4">
-                    <button
-                      type="button"
-                      onPointerDown={(e) => { e.preventDefault(); handleContinue(); }}
-                      className="w-full flex items-center justify-center gap-3 min-h-[90px] rounded-[20px] bg-gradient-to-r from-primary to-primary-soft text-white font-body text-[30px] font-semibold glow-primary active:scale-[0.98] transition-all"
-                    >
-                      Continuar
-                      <CaretRight size={26} weight="bold" />
-                    </button>
-                    <button
-                      type="button"
-                      onPointerDown={(e) => { e.preventDefault(); handleBackFromServices(); }}
-                      className="w-full flex items-center justify-center gap-3 min-h-[80px] rounded-[20px] glass-strong border border-brand-border text-[26px] font-body font-medium text-brand-text active:scale-[0.98] transition-all"
-                    >
-                      <Bag size={22} weight="light" className="text-brand-text-muted" />
-                      Adicionar mais serviços
-                    </button>
-                  </motion.div>
-                )}
               </motion.div>
             )}
 
@@ -542,7 +493,7 @@ export default function SelectServiceScreen() {
                     cart={cart}
                     currentIdx={currentServiceIdx}
                     professionalsByService={professionalsByService}
-                    professionals={MOCK_PROFESSIONALS}
+                    professionals={professionals}
                     onAssign={(serviceId, prof) => {
                       assignProfessional(serviceId, prof);
                       // Auto-advance to next service after selection
