@@ -1,0 +1,8 @@
+node_modules
+.next
+.turbo
+.pnpm-store
+.DS_Store
+files/
+files.zip
+apps/The Work Cave

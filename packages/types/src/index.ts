@@ -181,3 +181,36 @@ export type KioskStep =
   | "done";
 
 export type IdentifyMethod = "cpf" | "phone";
+
+// === Game Types ===
+
+export type GameStep = "idle" | "identify" | "payment" | "choose_game" | "spinning" | "scratching" | "prize" | "claimed" | "error";
+
+export type PrizeType = "discount_percent" | "discount_fixed" | "free_service" | "charmes" | "try_again" | "nothing" | "yearly_service";
+
+export type GameType = "roulette" | "scratch";
+
+export interface Prize {
+  id: string;
+  label: string;
+  type: PrizeType;
+  value: number;
+  color: string;
+  weight: number;
+  service_id?: string;
+}
+
+export interface GameConfig {
+  spin_cost_cents: number;
+  prizes: Prize[];
+  scratchPrizes: Prize[];
+  logo_url?: string;
+}
+
+export interface GameClient {
+  id: string;
+  name: string;
+  phone: string | null;
+  cpf: string | null;
+  balance_charmes: number;
+}
