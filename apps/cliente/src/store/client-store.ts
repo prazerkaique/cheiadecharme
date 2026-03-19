@@ -204,12 +204,13 @@ export const useClientStore = create<ClientState>((set, get) => ({
         if (error) throw error;
         set({ authLoading: false, screen: "otp" });
       } else if (loginMethod === "cpf") {
-        // Look up profile by CPF
+        // Look up profile by CPF (stored formatted as XXX.XXX.XXX-XX)
         const cpfDigits = cpf.replace(/\D/g, "");
+        const cpfFormatted = cpfDigits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
         const { data: profile } = await supabase
           .from("profiles")
           .select("phone")
-          .eq("cpf", cpfDigits)
+          .eq("cpf", cpfFormatted)
           .eq("role", "cliente")
           .eq("store_id", STORE_ID)
           .single();
@@ -219,8 +220,10 @@ export const useClientStore = create<ClientState>((set, get) => ({
           return;
         }
 
-        // Send OTP to the phone on file
-        const { error } = await supabase.auth.signInWithOtp({ phone: profile.phone });
+        // Send OTP to the phone on file (stored as "(XX) XXXXX-XXXX", auth needs "+55XXXXXXXXXXX")
+        const profilePhoneDigits = profile.phone.replace(/\D/g, "");
+        const profilePhoneFull = `+55${profilePhoneDigits}`;
+        const { error } = await supabase.auth.signInWithOtp({ phone: profilePhoneFull });
         if (error) throw error;
         set({ authLoading: false, screen: "otp", phone: profile.phone });
       }
