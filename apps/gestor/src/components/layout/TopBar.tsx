@@ -1,7 +1,8 @@
 "use client";
 
-import { LogOut, Scissors } from "lucide-react";
+import { LogOut, Scissors, FlaskConical } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
+import { useConfigStore } from "@/store/config-store";
 import { useRouter } from "next/navigation";
 
 const PRIMARY_COLOR = "#EC4899";
@@ -10,6 +11,8 @@ export function TopBar() {
   const profile = useAuthStore((s) => s.profile);
   const store = useAuthStore((s) => s.store);
   const logout = useAuthStore((s) => s.logout);
+  const showMock = useConfigStore((s) => s.settings?.show_mock_data ?? true);
+  const toggleMock = useConfigStore((s) => s.toggleMock);
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -43,6 +46,22 @@ export function TopBar() {
 
       {/* Right side */}
       <div className="flex items-center gap-3">
+        {/* Mock data toggle */}
+        {store && (
+          <button
+            onClick={() => toggleMock(store.id)}
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
+              showMock
+                ? "bg-amber-50 text-amber-700 hover:bg-amber-100"
+                : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+            }`}
+            title={showMock ? "Dados demo visíveis — clique para esconder" : "Dados demo ocultos — clique para mostrar"}
+          >
+            <FlaskConical size={14} />
+            <span className="hidden sm:inline">Demo</span>
+          </button>
+        )}
+
         {profile && (
           <div className="hidden items-center gap-2 md:flex">
             <div

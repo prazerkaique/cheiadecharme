@@ -1,14 +1,17 @@
 import { supabase } from "@/lib/supabase";
 import type { Service } from "@cheia/types";
 
-export async function fetchServices(storeId: string) {
-  const { data, error } = await supabase
+export async function fetchServices(storeId: string, showMock = true) {
+  let query = supabase
     .from("services")
     .select("*")
     .eq("store_id", storeId)
     .order("category")
     .order("name");
 
+  if (!showMock) query = query.eq("is_mock", false);
+
+  const { data, error } = await query;
   if (error) throw error;
   return data as Service[];
 }

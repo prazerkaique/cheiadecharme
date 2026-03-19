@@ -10,7 +10,7 @@ interface VendasState {
   search: string;
   loading: boolean;
 
-  fetch: (storeId: string) => Promise<void>;
+  fetch: (storeId: string, showMock?: boolean) => Promise<void>;
   setDateRange: (range: SalesDateRange) => void;
   setSearch: (s: string) => void;
 }
@@ -21,9 +21,9 @@ export const useVendasStore = create<VendasState>((set, get) => ({
   search: "",
   loading: false,
 
-  fetch: async (storeId) => {
+  fetch: async (storeId, showMock = true) => {
     set({ loading: true });
-    const transactions = await fetchTransactions(storeId, get().dateRange);
+    const transactions = await fetchTransactions(storeId, get().dateRange, showMock);
     set({ transactions, loading: false });
   },
 

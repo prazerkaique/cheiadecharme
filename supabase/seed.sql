@@ -248,8 +248,8 @@ INSERT INTO profiles
 VALUES
   ('b0000000-0000-0000-0000-000000000099',
    'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-   'Carla Mendes', 'gestor',
-   'carla.mendes@cheiadechame.com.br',
+   'Aldo', 'gestor',
+   'aldo@cheiadecharme.com.br',
    0, false, 0, true);
 
 -- ---------------------------------------------------------------------------
@@ -258,7 +258,7 @@ VALUES
 -- These entries allow signInWithPassword() in the profissional/gestor apps.
 -- Email: ana.paula@cheiadechame.com.br / 123456  (Cabelo)
 -- Email: fernanda.lima@cheiadechame.com.br / 123456  (Unhas)
--- Email: carla.mendes@cheiadechame.com.br / 123456  (Gestor)
+-- Email: aldo@cheiadecharme.com.br / 123456  (Gestor)
 
 INSERT INTO auth.users (
   instance_id, id, aud, role, email, encrypted_password,
@@ -289,16 +289,16 @@ VALUES
    '{"provider": "email", "providers": ["email"]}',
    '{"name": "Fernanda Lima"}'),
 
-  -- Carla Mendes (Gestor)
+  -- Aldo (Gestor)
   ('00000000-0000-0000-0000-000000000000',
    'aa000000-0000-0000-0000-000000000003',
    'authenticated', 'authenticated',
-   'carla.mendes@cheiadechame.com.br',
+   'aldo@cheiadecharme.com.br',
    crypt('123456', gen_salt('bf')),
    now(), now(), now(),
    '', '', '', '',
    '{"provider": "email", "providers": ["email"]}',
-   '{"name": "Carla Mendes"}');
+   '{"name": "Aldo"}');
 
 -- auth.identities (required for email/password login to work)
 INSERT INTO auth.identities (
@@ -321,7 +321,7 @@ VALUES
   ('aa000000-0000-0000-0000-000000000003',
    'aa000000-0000-0000-0000-000000000003',
    'aa000000-0000-0000-0000-000000000003',
-   jsonb_build_object('sub', 'aa000000-0000-0000-0000-000000000003', 'email', 'carla.mendes@cheiadechame.com.br'),
+   jsonb_build_object('sub', 'aa000000-0000-0000-0000-000000000003', 'email', 'aldo@cheiadecharme.com.br'),
    'email', now(), now(), now());
 
 -- Link auth users to their profiles
@@ -332,7 +332,7 @@ UPDATE profiles SET auth_id = 'aa000000-0000-0000-0000-000000000002'
   WHERE id = 'b0000000-0000-0000-0000-000000000005'; -- Fernanda
 
 UPDATE profiles SET auth_id = 'aa000000-0000-0000-0000-000000000003'
-  WHERE id = 'b0000000-0000-0000-0000-000000000099'; -- Carla (Gestor)
+  WHERE id = 'b0000000-0000-0000-0000-000000000099'; -- Aldo (Gestor)
 
 -- ---------------------------------------------------------------------------
 -- APPOINTMENTS (10 for today — covers all app views)

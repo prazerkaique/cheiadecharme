@@ -3,15 +3,17 @@
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { useEquipeStore } from "@/store/equipe-store";
+import { useConfigStore } from "@/store/config-store";
 import { ProfessionalList } from "@/components/equipe/ProfessionalList";
 
 export default function EquipePage() {
   const store = useAuthStore((s) => s.store);
+  const showMock = useConfigStore((s) => s.settings?.show_mock_data ?? true);
   const { professionals, loading, fetch: fetchTeam } = useEquipeStore();
 
   useEffect(() => {
-    if (store?.id) fetchTeam(store.id);
-  }, [store?.id, fetchTeam]);
+    if (store?.id) fetchTeam(store.id, showMock);
+  }, [store?.id, showMock, fetchTeam]);
 
   if (loading) {
     return (

@@ -38,10 +38,10 @@ function getDateBounds(range: DateRange): { start: string; end: string } {
   };
 }
 
-export async function fetchDashboardKPIs(storeId: string, range: DateRange) {
+export async function fetchDashboardKPIs(storeId: string, range: DateRange, showMock = true) {
   const { start, end } = getDateBounds(range);
 
-  const { data: transactions } = await supabase
+  let txQuery = supabase
     .from("transactions")
     .select("amount_cents, commission_cents, professional_id, service_id, transaction_date")
     .eq("store_id", storeId)
@@ -49,12 +49,20 @@ export async function fetchDashboardKPIs(storeId: string, range: DateRange) {
     .gte("transaction_date", start)
     .lte("transaction_date", end);
 
-  const { data: appointments } = await supabase
+  let apptQuery = supabase
     .from("appointments")
     .select("id, status, professional_id, completed_at")
     .eq("store_id", storeId)
     .gte("created_at", start)
     .lte("created_at", end);
+
+  if (!showMock) {
+    txQuery = txQuery.eq("is_mock", false);
+    apptQuery = apptQuery.eq("is_mock", false);
+  }
+
+  const { data: transactions } = await txQuery;
+  const { data: appointments } = await apptQuery;
 
   const txs = transactions ?? [];
   const appts = appointments ?? [];

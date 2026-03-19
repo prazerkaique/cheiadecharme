@@ -35,10 +35,10 @@ function getDateBounds(range: SalesDateRange): { start: string; end: string } {
   return { start: start.toISOString(), end: now.toISOString() };
 }
 
-export async function fetchTransactions(storeId: string, range: SalesDateRange) {
+export async function fetchTransactions(storeId: string, range: SalesDateRange, showMock = true) {
   const { start, end } = getDateBounds(range);
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("transactions")
     .select("*")
     .eq("store_id", storeId)
@@ -46,6 +46,9 @@ export async function fetchTransactions(storeId: string, range: SalesDateRange) 
     .lte("transaction_date", end)
     .order("transaction_date", { ascending: false });
 
+  if (!showMock) query = query.eq("is_mock", false);
+
+  const { data, error } = await query;
   if (error) throw error;
   return data as Transaction[];
 }

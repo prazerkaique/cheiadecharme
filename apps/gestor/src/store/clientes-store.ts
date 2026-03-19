@@ -9,7 +9,7 @@ interface ClientesState {
   search: string;
   loading: boolean;
 
-  fetch: (storeId: string) => Promise<void>;
+  fetch: (storeId: string, showMock?: boolean) => Promise<void>;
   setSearch: (s: string) => void;
 }
 
@@ -18,9 +18,9 @@ export const useClientesStore = create<ClientesState>((set) => ({
   search: "",
   loading: false,
 
-  fetch: async (storeId) => {
+  fetch: async (storeId, showMock = true) => {
     set({ loading: true });
-    const clients = await fetchClients(storeId);
+    const clients = await fetchClients(storeId, showMock);
     set({ clients, loading: false });
   },
 

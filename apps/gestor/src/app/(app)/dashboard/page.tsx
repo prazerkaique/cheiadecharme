@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useDashboardStore } from "@/store/dashboard-store";
+import { useConfigStore } from "@/store/config-store";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { GoalCard } from "@/components/dashboard/GoalCard";
 import { SeasonalityChart } from "@/components/dashboard/SeasonalityChart";
@@ -38,6 +39,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const store = useAuthStore((s) => s.store);
   const profile = useAuthStore((s) => s.profile);
+  const showMock = useConfigStore((s) => s.settings?.show_mock_data ?? true);
   const {
     dateRange,
     setDateRange,
@@ -55,8 +57,8 @@ export default function DashboardPage() {
   const [seasonality, setSeasonality] = useState<{ month: number; value: number }[]>([]);
 
   useEffect(() => {
-    if (store?.id) fetchKPIs(store.id);
-  }, [store?.id, dateRange, fetchKPIs]);
+    if (store?.id) fetchKPIs(store.id, showMock);
+  }, [store?.id, dateRange, showMock, fetchKPIs]);
 
   // Fetch yearly seasonality data
   useEffect(() => {
@@ -65,25 +67,28 @@ export default function DashboardPage() {
     const start = `${year}-01-01`;
     const end = `${year}-12-31`;
 
-    supabase
+    let query = supabase
       .from("transactions")
       .select("amount_cents, transaction_date")
       .eq("store_id", store.id)
       .eq("status", "completed")
       .gte("transaction_date", start)
-      .lte("transaction_date", end)
-      .then(({ data }) => {
-        if (!data) return;
-        const monthly: Record<number, number> = {};
-        data.forEach((tx) => {
-          const m = new Date(tx.transaction_date).getMonth() + 1;
-          monthly[m] = (monthly[m] || 0) + tx.amount_cents;
-        });
-        setSeasonality(
-          Object.entries(monthly).map(([m, v]) => ({ month: Number(m), value: v }))
-        );
+      .lte("transaction_date", end);
+
+    if (!showMock) query = query.eq("is_mock", false);
+
+    query.then(({ data }) => {
+      if (!data) return;
+      const monthly: Record<number, number> = {};
+      data.forEach((tx) => {
+        const m = new Date(tx.transaction_date).getMonth() + 1;
+        monthly[m] = (monthly[m] || 0) + tx.amount_cents;
       });
-  }, [store?.id]);
+      setSeasonality(
+        Object.entries(monthly).map(([m, v]) => ({ month: Number(m), value: v }))
+      );
+    });
+  }, [store?.id, showMock]);
 
   // Resolve names
   const [serviceNames] = useMemoServiceNames(serviceDistribution, store?.id);

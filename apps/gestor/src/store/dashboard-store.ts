@@ -15,7 +15,7 @@ interface DashboardState {
   loading: boolean;
 
   setDateRange: (range: DateRange) => void;
-  fetch: (storeId: string) => Promise<void>;
+  fetch: (storeId: string, showMock?: boolean) => Promise<void>;
 }
 
 export const useDashboardStore = create<DashboardState>((set, get) => ({
@@ -31,9 +31,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
   setDateRange: (range) => set({ dateRange: range }),
 
-  fetch: async (storeId) => {
+  fetch: async (storeId, showMock = true) => {
     set({ loading: true });
-    const data = await fetchDashboardKPIs(storeId, get().dateRange);
+    const data = await fetchDashboardKPIs(storeId, get().dateRange, showMock);
     set({ ...data, loading: false });
   },
 }));

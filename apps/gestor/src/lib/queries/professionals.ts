@@ -1,14 +1,17 @@
 import { supabase } from "@/lib/supabase";
 import type { Profile, ProfessionalService } from "@cheia/types";
 
-export async function fetchProfessionals(storeId: string) {
-  const { data, error } = await supabase
+export async function fetchProfessionals(storeId: string, showMock = true) {
+  let query = supabase
     .from("profiles")
     .select("*")
     .eq("store_id", storeId)
     .eq("role", "profissional")
     .order("name");
 
+  if (!showMock) query = query.eq("is_mock", false);
+
+  const { data, error } = await query;
   if (error) throw error;
   return data as Profile[];
 }

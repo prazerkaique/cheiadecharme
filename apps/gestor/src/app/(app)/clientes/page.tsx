@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, UserCheck } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useClientesStore } from "@/store/clientes-store";
+import { useConfigStore } from "@/store/config-store";
 import { FrequencyBadge } from "@/components/clientes/FrequencyBadge";
 import { computeFrequency } from "@/lib/queries/clients";
 import { supabase } from "@/lib/supabase";
@@ -13,12 +14,13 @@ const PRIMARY_COLOR = "#EC4899";
 
 export default function ClientesPage() {
   const store = useAuthStore((s) => s.store);
+  const showMock = useConfigStore((s) => s.settings?.show_mock_data ?? true);
   const { clients, search, loading, fetch: fetchClients, setSearch } = useClientesStore();
   const [appointmentCounts, setAppointmentCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    if (store?.id) fetchClients(store.id);
-  }, [store?.id, fetchClients]);
+    if (store?.id) fetchClients(store.id, showMock);
+  }, [store?.id, showMock, fetchClients]);
 
   useEffect(() => {
     if (clients.length === 0 || !store?.id) return;

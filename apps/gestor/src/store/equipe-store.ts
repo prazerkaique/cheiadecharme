@@ -12,7 +12,7 @@ interface EquipeState {
   selectedServices: ProfessionalService[];
   loading: boolean;
 
-  fetch: (storeId: string) => Promise<void>;
+  fetch: (storeId: string, showMock?: boolean) => Promise<void>;
   fetchServices: (professionalId: string) => Promise<void>;
 }
 
@@ -21,9 +21,9 @@ export const useEquipeStore = create<EquipeState>((set) => ({
   selectedServices: [],
   loading: false,
 
-  fetch: async (storeId) => {
+  fetch: async (storeId, showMock = true) => {
     set({ loading: true });
-    const professionals = await fetchProfessionals(storeId);
+    const professionals = await fetchProfessionals(storeId, showMock);
     set({ professionals, loading: false });
   },
 

@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { DollarSign, ShoppingBag, Search } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useVendasStore } from "@/store/vendas-store";
+import { useConfigStore } from "@/store/config-store";
 import { formatPrice, formatDateTime } from "@/lib/format";
 import { supabase } from "@/lib/supabase";
 import type { SalesDateRange } from "@/lib/queries/transactions";
@@ -33,6 +34,7 @@ const STATUS_LABELS: Record<string, { label: string; className: string }> = {
 
 export default function VendasPage() {
   const store = useAuthStore((s) => s.store);
+  const showMock = useConfigStore((s) => s.settings?.show_mock_data ?? true);
   const {
     transactions,
     dateRange,
@@ -48,8 +50,8 @@ export default function VendasPage() {
   const [clientNames, setClientNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (store?.id) fetchTxs(store.id);
-  }, [store?.id, dateRange, fetchTxs]);
+    if (store?.id) fetchTxs(store.id, showMock);
+  }, [store?.id, showMock, dateRange, fetchTxs]);
 
   useEffect(() => {
     if (transactions.length === 0) return;

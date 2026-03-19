@@ -9,7 +9,7 @@ interface ServicosState {
   loading: boolean;
   editingId: string | null;
 
-  fetch: (storeId: string) => Promise<void>;
+  fetch: (storeId: string, showMock?: boolean) => Promise<void>;
   setEditingId: (id: string | null) => void;
 }
 
@@ -18,9 +18,9 @@ export const useServicosStore = create<ServicosState>((set) => ({
   loading: false,
   editingId: null,
 
-  fetch: async (storeId) => {
+  fetch: async (storeId, showMock = true) => {
     set({ loading: true });
-    const services = await fetchServices(storeId);
+    const services = await fetchServices(storeId, showMock);
     set({ services, loading: false });
   },
 

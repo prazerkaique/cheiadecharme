@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Plus, Edit2, Trash2, Scissors, Tag, CreditCard, Info } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useServicosStore } from "@/store/servicos-store";
+import { useConfigStore } from "@/store/config-store";
 import { useUIStore } from "@/store/ui-store";
 import { createService, updateService } from "@/lib/queries/services";
 import { formatPrice, formatDuration } from "@/lib/format";
@@ -14,6 +15,7 @@ type Tab = "services" | "plans" | "promos";
 
 export default function ServicosPage() {
   const store = useAuthStore((s) => s.store);
+  const showMock = useConfigStore((s) => s.settings?.show_mock_data ?? true);
   const { services, loading, fetch: fetchAll, setEditingId } = useServicosStore();
   const addToast = useUIStore((s) => s.addToast);
 
@@ -22,8 +24,8 @@ export default function ServicosPage() {
   const [editingService, setEditingService] = useState<Service | null>(null);
 
   useEffect(() => {
-    if (store?.id) fetchAll(store.id);
-  }, [store?.id, fetchAll]);
+    if (store?.id) fetchAll(store.id, showMock);
+  }, [store?.id, showMock, fetchAll]);
 
   const openCreate = () => {
     setEditingService(null);
@@ -57,7 +59,7 @@ export default function ServicosPage() {
         });
         addToast("Servico criado", "success");
       }
-      fetchAll(store.id);
+      fetchAll(store.id, showMock);
     } catch {
       addToast("Erro ao salvar servico", "error");
     }
@@ -67,7 +69,7 @@ export default function ServicosPage() {
     if (!store?.id) return;
     await updateService(s.id, { is_active: !s.is_active });
     addToast(s.is_active ? "Servico desativado" : "Servico ativado", "success");
-    fetchAll(store.id);
+    fetchAll(store.id, showMock);
   };
 
   if (loading) {
