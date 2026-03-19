@@ -9,6 +9,7 @@ import { BookingScreen } from "@/components/screens/BookingScreen";
 import { CharmesScreen } from "@/components/screens/CharmesScreen";
 import { PromotionsScreen } from "@/components/screens/PromotionsScreen";
 import { HistoryScreen } from "@/components/screens/HistoryScreen";
+import { PrizesScreen } from "@/components/screens/PrizesScreen";
 import { ProfileScreen } from "@/components/screens/ProfileScreen";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -38,6 +39,7 @@ export function AppShell() {
           {screen === "charmes" && <CharmesScreen />}
           {screen === "promotions" && <PromotionsScreen />}
           {screen === "history" && <HistoryScreen />}
+          {screen === "prizes" && <PrizesScreen />}
           {screen === "profile" && <ProfileScreen />}
         </motion.div>
       </AnimatePresence>

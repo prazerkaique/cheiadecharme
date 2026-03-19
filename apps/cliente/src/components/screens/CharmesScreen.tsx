@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Gem, TrendingUp, TrendingDown, Gift, ShoppingCart, RotateCcw, Star } from "lucide-react";
+import { Gem, TrendingUp, TrendingDown, Gift, ShoppingCart, RotateCcw, Star, Plus } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { useClientStore } from "@/store/client-store";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate } from "@/lib/format";
+import { CharmesBuyModal } from "@/components/charmes/CharmesBuyModal";
 import type { CharmeTransactionType } from "@cheia/types";
 import type { LucideIcon } from "lucide-react";
 
@@ -24,6 +25,7 @@ export function CharmesScreen() {
   const charmes = useClientStore((s) => s.charmes);
   const transactions = useClientStore((s) => s.charmeTransactions);
   const loadCharmeHistory = useClientStore((s) => s.loadCharmeHistory);
+  const [showBuyModal, setShowBuyModal] = useState(false);
 
   useEffect(() => {
     loadCharmeHistory();
@@ -47,6 +49,18 @@ export function CharmesScreen() {
           <p className="text-sm opacity-80 font-semibold">Saldo de Charmes</p>
           <p className="text-4xl font-display font-bold mt-1">{balance}</p>
         </motion.div>
+
+        {/* Buy button */}
+        <motion.button
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease, delay: 0.1 }}
+          onPointerDown={(e) => { e.preventDefault(); setShowBuyModal(true); }}
+          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cta to-primary text-white font-display font-semibold text-base transition-all hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          Comprar Charmes
+        </motion.button>
 
         {/* Transactions */}
         <div>
@@ -87,6 +101,8 @@ export function CharmesScreen() {
           )}
         </div>
       </div>
+
+      {showBuyModal && <CharmesBuyModal onClose={() => setShowBuyModal(false)} />}
     </div>
   );
 }

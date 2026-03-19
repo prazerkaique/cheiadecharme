@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarPlus, Gem, Tag, History } from "lucide-react";
+import { CalendarPlus, Gem, Tag, Trophy } from "lucide-react";
 import { useClientStore } from "@/store/client-store";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -10,7 +10,7 @@ const ACTIONS = [
   { id: "booking" as const, label: "Agendar", icon: CalendarPlus, color: "from-cta to-primary" },
   { id: "charmes" as const, label: "Charmes", icon: Gem, color: "from-primary to-primary-soft" },
   { id: "promotions" as const, label: "Promocoes", icon: Tag, color: "from-warning to-warning" },
-  { id: "history" as const, label: "Historico", icon: History, color: "from-success to-success" },
+  { id: "prizes" as const, label: "Premios", icon: Trophy, color: "from-success to-success" },
 ] as const;
 
 export function QuickActions() {
@@ -20,7 +20,7 @@ export function QuickActions() {
   const handleAction = (id: string) => {
     if (id === "booking") setActiveTab("booking");
     else if (id === "charmes") setActiveTab("charmes");
-    else navigate(id as "promotions" | "history");
+    else navigate(id as "promotions" | "prizes");
   };
 
   return (

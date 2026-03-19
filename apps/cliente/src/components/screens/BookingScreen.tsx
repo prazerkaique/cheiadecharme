@@ -8,6 +8,7 @@ import { ServiceList } from "@/components/booking/ServiceList";
 import { ProfessionalPicker } from "@/components/booking/ProfessionalPicker";
 import { DateTimePicker } from "@/components/booking/DateTimePicker";
 import { BookingSummary } from "@/components/booking/BookingSummary";
+import { BookingPayment } from "@/components/booking/BookingPayment";
 
 const STEP_TITLES: Record<string, string> = {
   category: "Agendar",
@@ -15,6 +16,7 @@ const STEP_TITLES: Record<string, string> = {
   professional: "Profissional",
   datetime: "Data e Horario",
   confirm: "Confirmar",
+  payment: "Pagamento",
 };
 
 export function BookingScreen() {
@@ -36,6 +38,7 @@ export function BookingScreen() {
         {bookingStep === "professional" && <ProfessionalPicker />}
         {bookingStep === "datetime" && <DateTimePicker />}
         {bookingStep === "confirm" && <BookingSummary />}
+        {bookingStep === "payment" && <BookingPayment />}
       </div>
     </div>
   );

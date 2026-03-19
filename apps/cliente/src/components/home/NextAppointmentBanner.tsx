@@ -2,9 +2,9 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, User } from "lucide-react";
+import { Calendar, Clock, User, Scissors } from "lucide-react";
 import { useClientStore } from "@/store/client-store";
-import { formatRelativeDate, formatTime } from "@/lib/format";
+import { formatRelativeDate, formatTime, formatCents } from "@/lib/format";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -27,38 +27,54 @@ export function NextAppointmentBanner() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease, delay: 0.1 }}
-      className={`glass-strong rounded-2xl p-4 ${isToday ? "pulse-glow" : ""}`}
+      className="relative overflow-hidden rounded-2xl border-l-4 border-cta"
+      style={{
+        background: "linear-gradient(135deg, rgba(236,72,153,0.08), rgba(139,92,246,0.08))",
+      }}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <p className="text-xs font-semibold text-cta uppercase tracking-wide">
-            Proximo agendamento
-          </p>
-          <h3 className="text-lg font-display font-bold text-brand-text mt-1">
-            {next.service_name}
-          </h3>
+      <div className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-cta to-primary flex items-center justify-center shadow-sm">
+              <Scissors className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-cta uppercase tracking-wide">
+                Proximo agendamento
+              </p>
+              <h3 className="text-lg font-display font-bold text-brand-text mt-0.5">
+                {next.service_name}
+              </h3>
+            </div>
+          </div>
+          {isToday && (
+            <span className="px-3 py-1.5 rounded-full bg-cta/15 text-cta text-xs font-bold animate-pulse shadow-sm">
+              Hoje
+            </span>
+          )}
         </div>
-        {isToday && (
-          <span className="px-2.5 py-1 rounded-full bg-cta/10 text-cta text-xs font-bold">
-            Hoje
-          </span>
-        )}
-      </div>
 
-      <div className="flex items-center gap-4 text-sm text-brand-text-muted">
-        <span className="flex items-center gap-1.5">
-          <Calendar className="w-4 h-4" />
-          {formatRelativeDate(next.scheduled_at)}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <Clock className="w-4 h-4" />
-          {formatTime(next.scheduled_at)}
-        </span>
-        {next.professional_name && (
+        <div className="flex items-center gap-4 text-sm text-brand-text-muted">
           <span className="flex items-center gap-1.5">
-            <User className="w-4 h-4" />
-            {next.professional_name.split(" ")[0]}
+            <Calendar className="w-4 h-4" />
+            {formatRelativeDate(next.scheduled_at)}
           </span>
+          <span className="flex items-center gap-1.5">
+            <Clock className="w-4 h-4" />
+            {formatTime(next.scheduled_at)}
+          </span>
+          {next.professional_name && (
+            <span className="flex items-center gap-1.5">
+              <User className="w-4 h-4" />
+              {next.professional_name.split(" ")[0]}
+            </span>
+          )}
+        </div>
+
+        {next.price_cents > 0 && (
+          <div className="mt-2 text-right">
+            <span className="text-sm font-bold text-cta">{formatCents(next.price_cents)}</span>
+          </div>
         )}
       </div>
     </motion.div>

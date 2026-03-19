@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import type { Profile, Service, Appointment, Promotion, CharmeTransaction, ClientCharmes } from "@cheia/types";
+import type { Profile, Service, Appointment, Promotion, CharmeTransaction, ClientCharmes, Prize } from "@cheia/types";
 import type { ClientScreen, BookingStep, BottomTab, LoginMethod } from "@/types/client";
 import { isSupabaseConfigured, supabase, STORE_ID } from "@/lib/supabase";
 import {
@@ -19,6 +19,32 @@ type EnrichedAppointment = Appointment & {
   professional_name: string | null;
   service_category: string;
   price_cents: number;
+};
+
+export type GameSpinRecord = {
+  id: string;
+  store_id: string;
+  client_id: string;
+  prize_id: string;
+  game_type: string;
+  spun_at: string;
+  created_at: string;
+};
+
+export type EnrichedPrize = GameSpinRecord & {
+  prize?: Prize;
+};
+
+type HistoryFilter = "all" | "appointments" | "charmes" | "games";
+
+export type HistoryItem = {
+  id: string;
+  type: "appointment" | "charme" | "game";
+  date: string;
+  title: string;
+  subtitle: string;
+  amount?: number;
+  positive?: boolean;
 };
 
 interface Toast {
@@ -49,6 +75,9 @@ interface ClientState {
   professionals: Profile[];
   appointments: EnrichedAppointment[];
   promotions: Promotion[];
+  prizes: EnrichedPrize[];
+  historyItems: HistoryItem[];
+  historyFilter: HistoryFilter;
 
   // Booking
   bookingStep: BookingStep;
@@ -96,6 +125,10 @@ interface ClientState {
   loadCharmeHistory: () => Promise<void>;
   loadPromotions: () => Promise<void>;
   loadHistory: () => Promise<void>;
+  loadPrizes: () => Promise<void>;
+  loadFullHistory: () => Promise<void>;
+  addCharmes: (amount: number) => Promise<void>;
+  setHistoryFilter: (filter: HistoryFilter) => void;
 
   // UI
   addToast: (message: string, type: "success" | "error") => void;
@@ -138,6 +171,9 @@ export const useClientStore = create<ClientState>((set, get) => ({
   professionals: [],
   appointments: [],
   promotions: [],
+  prizes: [],
+  historyItems: [],
+  historyFilter: "all",
 
   // ── Booking ───────────────────────────────────────────────
   bookingStep: "category",
@@ -520,7 +556,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
   goBack: () => {
     const { screen, bookingStep } = get();
     if (screen === "booking") {
-      const steps: BookingStep[] = ["category", "service", "professional", "datetime", "confirm"];
+      const steps: BookingStep[] = ["category", "service", "professional", "datetime", "confirm", "payment"];
       const idx = steps.indexOf(bookingStep);
       if (idx > 0) {
         set({ bookingStep: steps[idx - 1] });
@@ -755,6 +791,210 @@ export const useClientStore = create<ClientState>((set, get) => ({
       }
     } catch (err) {
       console.error("[client-store] loadHistory error:", err);
+    }
+  },
+
+  // ── Prizes ───────────────────────────────────────────────
+
+  loadPrizes: async () => {
+    if (!isSupabaseConfigured()) {
+      // Mock prizes
+      set({
+        prizes: [
+          { id: "spin1", store_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890", client_id: MOCK_CLIENT.id, prize_id: "p3", game_type: "roulette", spun_at: new Date(Date.now() - 2 * 86400000).toISOString(), created_at: new Date(Date.now() - 2 * 86400000).toISOString(), prize: { id: "p3", label: "10% de desconto", type: "discount_percent", value: 10, color: "#F59E0B", weight: 20 } },
+          { id: "spin2", store_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890", client_id: MOCK_CLIENT.id, prize_id: "p1", game_type: "roulette", spun_at: new Date(Date.now() - 5 * 86400000).toISOString(), created_at: new Date(Date.now() - 5 * 86400000).toISOString(), prize: { id: "p1", label: "50 Charmes", type: "charmes", value: 50, color: "#EC4899", weight: 15 } },
+          { id: "spin3", store_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890", client_id: MOCK_CLIENT.id, prize_id: "p5", game_type: "scratch", spun_at: new Date(Date.now() - 10 * 86400000).toISOString(), created_at: new Date(Date.now() - 10 * 86400000).toISOString(), prize: { id: "p5", label: "Escova Gratis", type: "free_service", value: 0, color: "#10B981", weight: 5 } },
+          { id: "spin4", store_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890", client_id: MOCK_CLIENT.id, prize_id: "p2", game_type: "roulette", spun_at: new Date(Date.now() - 15 * 86400000).toISOString(), created_at: new Date(Date.now() - 15 * 86400000).toISOString(), prize: { id: "p2", label: "R$20 de desconto", type: "discount_fixed", value: 2000, color: "#8B5CF6", weight: 10 } },
+        ],
+      });
+      return;
+    }
+
+    const profile = get().profile;
+    if (!profile) return;
+
+    try {
+      const [spinsRes, configRes] = await Promise.all([
+        supabase.from("game_spins").select("*").eq("client_id", profile.id).eq("store_id", STORE_ID).order("spun_at", { ascending: false }).limit(50),
+        supabase.from("game_configs").select("prizes, scratch_prizes").eq("store_id", STORE_ID).single(),
+      ]);
+
+      if (spinsRes.data && configRes.data) {
+        const allPrizes: Prize[] = [...(configRes.data.prizes ?? []), ...(configRes.data.scratch_prizes ?? [])];
+        const prizeMap = new Map(allPrizes.map((p: Prize) => [p.id, p]));
+
+        const enriched: EnrichedPrize[] = (spinsRes.data as GameSpinRecord[])
+          .filter((s) => {
+            const prize = prizeMap.get(s.prize_id);
+            return !prize || (prize.type !== "nothing" && prize.type !== "try_again");
+          })
+          .map((s) => ({ ...s, prize: prizeMap.get(s.prize_id) }));
+
+        set({ prizes: enriched });
+      }
+    } catch (err) {
+      console.error("[client-store] loadPrizes error:", err);
+    }
+  },
+
+  addCharmes: async (amount) => {
+    const profile = get().profile;
+    if (!profile) return;
+
+    if (isSupabaseConfigured()) {
+      try {
+        const currentBalance = get().charmes?.balance ?? 0;
+        await Promise.all([
+          supabase.from("client_charmes").update({ balance: currentBalance + amount }).eq("client_id", profile.id).eq("store_id", STORE_ID),
+          supabase.from("charme_transactions").insert({
+            client_id: profile.id,
+            store_id: STORE_ID,
+            amount,
+            type: "purchase",
+            description: `Compra de ${amount} charmes`,
+          }),
+        ]);
+      } catch {
+        get().addToast("Erro ao comprar charmes. Tente novamente.", "error");
+        return;
+      }
+    }
+
+    // Update local state
+    const currentCharmes = get().charmes;
+    if (currentCharmes) {
+      set({ charmes: { ...currentCharmes, balance: currentCharmes.balance + amount } });
+    }
+    const newTx: CharmeTransaction = {
+      id: `local-${Date.now()}`,
+      client_id: profile.id,
+      store_id: STORE_ID,
+      amount,
+      type: "purchase",
+      reference_id: null,
+      description: `Compra de ${amount} charmes`,
+      created_at: new Date().toISOString(),
+    };
+    set((s) => ({ charmeTransactions: [newTx, ...s.charmeTransactions] }));
+    get().addToast(`${amount} charmes adicionados!`, "success");
+  },
+
+  setHistoryFilter: (filter) => set({ historyFilter: filter }),
+
+  loadFullHistory: async () => {
+    const profile = get().profile;
+    if (!profile) return;
+
+    if (!isSupabaseConfigured()) {
+      // Build from mock data
+      const items: HistoryItem[] = [];
+
+      MOCK_APPOINTMENTS.forEach((a) => {
+        items.push({
+          id: `appt-${a.id}`,
+          type: "appointment",
+          date: a.scheduled_at ?? a.created_at,
+          title: a.service_name,
+          subtitle: a.professional_name ? `com ${a.professional_name.split(" ")[0]}` : a.status === "no_show" ? "Nao compareceu" : "Concluido",
+          amount: a.price_cents,
+          positive: false,
+        });
+      });
+
+      MOCK_CHARME_TRANSACTIONS.forEach((tx) => {
+        items.push({
+          id: `charme-${tx.id}`,
+          type: "charme",
+          date: tx.created_at,
+          title: tx.description,
+          subtitle: tx.type === "earn" ? "Cashback" : tx.type === "purchase" ? "Compra" : tx.type === "bonus" ? "Bonus" : tx.type === "spend" ? "Usado" : "Estorno",
+          amount: tx.amount,
+          positive: tx.amount > 0,
+        });
+      });
+
+      // Mock game spins
+      items.push(
+        { id: "game-1", type: "game", date: new Date(Date.now() - 2 * 86400000).toISOString(), title: "Roleta — 10% de desconto", subtitle: "Cheia de Sorte", positive: true },
+        { id: "game-2", type: "game", date: new Date(Date.now() - 5 * 86400000).toISOString(), title: "Roleta — 50 Charmes", subtitle: "Cheia de Sorte", positive: true },
+        { id: "game-3", type: "game", date: new Date(Date.now() - 10 * 86400000).toISOString(), title: "Raspadinha — Escova Gratis", subtitle: "Cheia de Sorte", positive: true },
+      );
+
+      items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      set({ historyItems: items });
+      return;
+    }
+
+    try {
+      const [appointmentsRes, charmesRes, spinsRes, configRes] = await Promise.all([
+        supabase
+          .from("appointments")
+          .select("*, services(name, category, price_cents), profiles!appointments_professional_id_fkey(name)")
+          .eq("client_id", profile.id)
+          .eq("store_id", STORE_ID)
+          .order("scheduled_at", { ascending: false })
+          .limit(50),
+        supabase.from("charme_transactions").select("*").eq("client_id", profile.id).eq("store_id", STORE_ID).order("created_at", { ascending: false }).limit(50),
+        supabase.from("game_spins").select("*").eq("client_id", profile.id).eq("store_id", STORE_ID).order("spun_at", { ascending: false }).limit(50),
+        supabase.from("game_configs").select("prizes, scratch_prizes").eq("store_id", STORE_ID).single(),
+      ]);
+
+      const items: HistoryItem[] = [];
+
+      if (appointmentsRes.data) {
+        appointmentsRes.data.forEach((a: Record<string, unknown>) => {
+          const svc = a.services as Record<string, unknown> | null;
+          const prof = a.profiles as Record<string, unknown> | null;
+          items.push({
+            id: `appt-${a.id}`,
+            type: "appointment",
+            date: (a.scheduled_at as string) ?? (a.created_at as string),
+            title: (svc?.name as string) ?? "Servico",
+            subtitle: prof ? `com ${(prof.name as string).split(" ")[0]}` : (a.status as string) === "no_show" ? "Nao compareceu" : "Concluido",
+            amount: (svc?.price_cents as number) ?? 0,
+            positive: false,
+          });
+        });
+      }
+
+      if (charmesRes.data) {
+        (charmesRes.data as CharmeTransaction[]).forEach((tx) => {
+          items.push({
+            id: `charme-${tx.id}`,
+            type: "charme",
+            date: tx.created_at,
+            title: tx.description,
+            subtitle: tx.type === "earn" ? "Cashback" : tx.type === "purchase" ? "Compra" : tx.type === "bonus" ? "Bonus" : tx.type === "spend" ? "Usado" : "Estorno",
+            amount: tx.amount,
+            positive: tx.amount > 0,
+          });
+        });
+      }
+
+      if (spinsRes.data && configRes.data) {
+        const allPrizes: Prize[] = [...(configRes.data.prizes ?? []), ...(configRes.data.scratch_prizes ?? [])];
+        const prizeMap = new Map(allPrizes.map((p: Prize) => [p.id, p]));
+
+        (spinsRes.data as GameSpinRecord[]).forEach((spin) => {
+          const prize = prizeMap.get(spin.prize_id);
+          if (prize && prize.type !== "nothing" && prize.type !== "try_again") {
+            const gameLabel = spin.game_type === "scratch" ? "Raspadinha" : "Roleta";
+            items.push({
+              id: `game-${spin.id}`,
+              type: "game",
+              date: spin.spun_at,
+              title: `${gameLabel} — ${prize.label}`,
+              subtitle: "Cheia de Sorte",
+              positive: true,
+            });
+          }
+        });
+      }
+
+      items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      set({ historyItems: items });
+    } catch (err) {
+      console.error("[client-store] loadFullHistory error:", err);
     }
   },
 

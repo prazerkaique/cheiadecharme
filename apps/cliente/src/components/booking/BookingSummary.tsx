@@ -1,11 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, Clock, User, Scissors, Check } from "lucide-react";
+import { Calendar, Clock, User, Scissors, CreditCard } from "lucide-react";
 import { useClientStore } from "@/store/client-store";
 import { formatCents } from "@/lib/format";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { useState } from "react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -18,8 +16,7 @@ export function BookingSummary() {
   const selectedProfessionalId = useClientStore((s) => s.selectedProfessionalId);
   const selectedDate = useClientStore((s) => s.selectedDate);
   const selectedTime = useClientStore((s) => s.selectedTime);
-  const confirmBooking = useClientStore((s) => s.confirmBooking);
-  const [confirming, setConfirming] = useState(false);
+  const setBookingStep = useClientStore((s) => s.setBookingStep);
 
   const service = services.find((s) => s.id === selectedServiceId);
   const professional = professionals.find((p) => p.id === selectedProfessionalId);
@@ -29,10 +26,8 @@ export function BookingSummary() {
   const dateObj = new Date(`${selectedDate}T${selectedTime}:00`);
   const dateStr = `${WEEKDAYS[dateObj.getDay()]}, ${dateObj.getDate()}/${dateObj.getMonth() + 1}`;
 
-  const handleConfirm = async () => {
-    setConfirming(true);
-    await confirmBooking();
-    setConfirming(false);
+  const handlePayment = () => {
+    setBookingStep("payment");
   };
 
   return (
@@ -90,18 +85,11 @@ export function BookingSummary() {
       </div>
 
       <button
-        onPointerDown={(e) => { e.preventDefault(); handleConfirm(); }}
-        disabled={confirming}
-        className="w-full py-4 rounded-xl bg-gradient-to-r from-cta to-primary text-white font-display font-semibold text-lg disabled:opacity-50 transition-all hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+        onPointerDown={(e) => { e.preventDefault(); handlePayment(); }}
+        className="w-full py-4 rounded-xl bg-gradient-to-r from-cta to-primary text-white font-display font-semibold text-lg transition-all hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
       >
-        {confirming ? (
-          <LoadingSpinner size={24} />
-        ) : (
-          <>
-            <Check className="w-5 h-5" />
-            Confirmar agendamento
-          </>
-        )}
+        <CreditCard className="w-5 h-5" />
+        Pagar e confirmar
       </button>
     </motion.div>
   );

@@ -6,6 +6,7 @@ export type ClientScreen =
   | "charmes"
   | "promotions"
   | "history"
+  | "prizes"
   | "profile";
 
 export type BookingStep =
@@ -13,7 +14,8 @@ export type BookingStep =
   | "service"
   | "professional"
   | "datetime"
-  | "confirm";
+  | "confirm"
+  | "payment";
 
 export type BottomTab = "home" | "booking" | "charmes" | "profile";
 
