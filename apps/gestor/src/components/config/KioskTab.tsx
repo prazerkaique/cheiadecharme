@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Save, Monitor, Plus, Trash2 } from "lucide-react";
+import { NumberInput } from "@/components/ui/NumberInput";
 import { useAuthStore } from "@/store/auth-store";
 import { useConfigStore } from "@/store/config-store";
 import { useUIStore } from "@/store/ui-store";
@@ -77,29 +78,26 @@ export function KioskTab() {
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Timeout Inatividade (s)</label>
-            <input
-              type="number"
+            <NumberInput
               value={form.kiosk_idle_timeout_s}
-              onChange={(e) => setForm((f) => ({ ...f, kiosk_idle_timeout_s: Number(e.target.value) }))}
-              className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+              onChange={(v) => setForm((f) => ({ ...f, kiosk_idle_timeout_s: v }))}
+              min={5}
             />
           </div>
           <div>
             <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Countdown Aviso (s)</label>
-            <input
-              type="number"
+            <NumberInput
               value={form.kiosk_warning_s}
-              onChange={(e) => setForm((f) => ({ ...f, kiosk_warning_s: Number(e.target.value) }))}
-              className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+              onChange={(v) => setForm((f) => ({ ...f, kiosk_warning_s: v }))}
+              min={3}
             />
           </div>
           <div>
             <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Countdown Sucesso (s)</label>
-            <input
-              type="number"
+            <NumberInput
               value={form.kiosk_done_countdown_s}
-              onChange={(e) => setForm((f) => ({ ...f, kiosk_done_countdown_s: Number(e.target.value) }))}
-              className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+              onChange={(v) => setForm((f) => ({ ...f, kiosk_done_countdown_s: v }))}
+              min={3}
             />
           </div>
         </div>
@@ -123,22 +121,20 @@ export function KioskTab() {
 
         <div>
           <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Desconto Cross-sell (%)</label>
-          <input
-            type="number"
+          <NumberInput
             value={form.kiosk_cross_sell_discount}
-            onChange={(e) => setForm((f) => ({ ...f, kiosk_cross_sell_discount: Number(e.target.value) }))}
-            disabled={!form.kiosk_cross_sell_enabled}
-            className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black disabled:opacity-50"
+            onChange={(v) => setForm((f) => ({ ...f, kiosk_cross_sell_discount: v }))}
+            min={0}
+            max={100}
           />
         </div>
 
         <div>
           <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Intervalo Slideshow Idle (s)</label>
-          <input
-            type="number"
+          <NumberInput
             value={form.kiosk_slideshow_interval_s}
-            onChange={(e) => setForm((f) => ({ ...f, kiosk_slideshow_interval_s: Number(e.target.value) }))}
-            className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+            onChange={(v) => setForm((f) => ({ ...f, kiosk_slideshow_interval_s: v }))}
+            min={1}
           />
         </div>
 

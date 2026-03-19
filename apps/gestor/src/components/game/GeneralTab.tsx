@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Save, Settings } from "lucide-react";
+import { NumberInput } from "@/components/ui/NumberInput";
 import { useAuthStore } from "@/store/auth-store";
 import { useGameConfigStore } from "@/store/game-config-store";
 import { useUIStore } from "@/store/ui-store";
@@ -68,11 +69,10 @@ export function GeneralTab() {
 
         <div>
           <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Custo do Giro (centavos em charmes)</label>
-          <input
-            type="number"
+          <NumberInput
             value={form.spin_cost_cents}
-            onChange={(e) => setForm((f) => ({ ...f, spin_cost_cents: Number(e.target.value) }))}
-            className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+            onChange={(v) => setForm((f) => ({ ...f, spin_cost_cents: v }))}
+            min={0}
           />
         </div>
 

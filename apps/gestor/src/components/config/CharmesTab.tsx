@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Save, Coins, Plus, Trash2 } from "lucide-react";
+import { NumberInput } from "@/components/ui/NumberInput";
 import { useAuthStore } from "@/store/auth-store";
 import { useConfigStore } from "@/store/config-store";
 import { useUIStore } from "@/store/ui-store";
@@ -75,11 +76,10 @@ export function CharmesTab() {
           <label className="mb-2 block text-xs font-bold uppercase text-gray-500">
             Taxa de Cambio (1 charme = X centavos)
           </label>
-          <input
-            type="number"
+          <NumberInput
             value={form.charme_rate_cents}
-            onChange={(e) => setForm((f) => ({ ...f, charme_rate_cents: Number(e.target.value) }))}
-            className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+            onChange={(v) => setForm((f) => ({ ...f, charme_rate_cents: v }))}
+            min={1}
           />
         </div>
 
@@ -89,20 +89,18 @@ export function CharmesTab() {
           <div className="space-y-2">
             {packs.map((pack, i) => (
               <div key={i} className="flex items-center gap-3">
-                <input
-                  type="number"
+                <NumberInput
                   value={pack.charmes}
-                  onChange={(e) => updatePack(i, "charmes", Number(e.target.value))}
+                  onChange={(v) => updatePack(i, "charmes", v)}
+                  min={1}
                   placeholder="Charmes"
-                  className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
                 />
                 <span className="shrink-0 text-sm text-gray-400">por R$</span>
-                <input
-                  type="number"
+                <NumberInput
                   value={pack.priceReais}
-                  onChange={(e) => updatePack(i, "priceReais", Number(e.target.value))}
+                  onChange={(v) => updatePack(i, "priceReais", v)}
+                  min={1}
                   placeholder="Preco"
-                  className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
                 />
                 <button
                   onClick={() => removePack(i)}
@@ -126,20 +124,20 @@ export function CharmesTab() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Desconto 2x Qtd (%)</label>
-            <input
-              type="number"
+            <NumberInput
               value={form.charme_discount_2x}
-              onChange={(e) => setForm((f) => ({ ...f, charme_discount_2x: Number(e.target.value) }))}
-              className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+              onChange={(v) => setForm((f) => ({ ...f, charme_discount_2x: v }))}
+              min={0}
+              max={100}
             />
           </div>
           <div>
             <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Desconto 4x Qtd (%)</label>
-            <input
-              type="number"
+            <NumberInput
               value={form.charme_discount_4x}
-              onChange={(e) => setForm((f) => ({ ...f, charme_discount_4x: Number(e.target.value) }))}
-              className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+              onChange={(v) => setForm((f) => ({ ...f, charme_discount_4x: v }))}
+              min={0}
+              max={100}
             />
           </div>
         </div>
@@ -147,20 +145,18 @@ export function CharmesTab() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Min. Charmes Customizado</label>
-            <input
-              type="number"
+            <NumberInput
               value={form.charme_min_custom}
-              onChange={(e) => setForm((f) => ({ ...f, charme_min_custom: Number(e.target.value) }))}
-              className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+              onChange={(v) => setForm((f) => ({ ...f, charme_min_custom: v }))}
+              min={1}
             />
           </div>
           <div>
             <label className="mb-2 block text-xs font-bold uppercase text-gray-500">Max. Charmes Customizado</label>
-            <input
-              type="number"
+            <NumberInput
               value={form.charme_max_custom}
-              onChange={(e) => setForm((f) => ({ ...f, charme_max_custom: Number(e.target.value) }))}
-              className="w-full rounded-xl border-none bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
+              onChange={(v) => setForm((f) => ({ ...f, charme_max_custom: v }))}
+              min={1}
             />
           </div>
         </div>

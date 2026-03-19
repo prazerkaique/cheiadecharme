@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import type { Prize, PrizeType } from "@cheia/types";
+import { NumberInput } from "@/components/ui/NumberInput";
 
 interface PrizeEditorProps {
   prizes: Prize[];
@@ -61,11 +62,10 @@ export function PrizeEditor({ prizes, onChange, typeOptions }: PrizeEditorProps)
               </option>
             ))}
           </select>
-          <input
-            type="number"
+          <NumberInput
             value={prize.value}
-            onChange={(e) => update(i, "value", Number(e.target.value))}
-            placeholder="0"
+            onChange={(v) => update(i, "value", v)}
+            min={0}
             className="w-full rounded-xl border-none bg-gray-50 px-3 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
           />
           <input
@@ -74,10 +74,9 @@ export function PrizeEditor({ prizes, onChange, typeOptions }: PrizeEditorProps)
             onChange={(e) => update(i, "color", e.target.value)}
             className="h-[44px] w-full cursor-pointer rounded-xl border-none bg-gray-50 px-1"
           />
-          <input
-            type="number"
+          <NumberInput
             value={prize.weight}
-            onChange={(e) => update(i, "weight", Number(e.target.value))}
+            onChange={(v) => update(i, "weight", v)}
             min={1}
             className="w-full rounded-xl border-none bg-gray-50 px-3 py-3 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-black"
           />
