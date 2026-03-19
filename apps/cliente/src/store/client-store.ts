@@ -653,12 +653,13 @@ export const useClientStore = create<ClientState>((set, get) => ({
 
   loadHomeData: async () => {
     if (!isSupabaseConfigured()) {
+      const { charmes, appointments, promotions, services, professionals } = get();
       set({
-        charmes: MOCK_CHARMES,
-        appointments: MOCK_APPOINTMENTS,
-        promotions: MOCK_PROMOTIONS,
-        services: MOCK_SERVICES,
-        professionals: MOCK_PROFESSIONALS,
+        charmes: charmes ?? MOCK_CHARMES,
+        appointments: appointments.length > 0 ? appointments : MOCK_APPOINTMENTS,
+        promotions: promotions.length > 0 ? promotions : MOCK_PROMOTIONS,
+        services: services.length > 0 ? services : MOCK_SERVICES,
+        professionals: professionals.length > 0 ? professionals : MOCK_PROFESSIONALS,
       });
       return;
     }
@@ -763,7 +764,8 @@ export const useClientStore = create<ClientState>((set, get) => ({
 
   loadHistory: async () => {
     if (!isSupabaseConfigured()) {
-      set({ appointments: MOCK_APPOINTMENTS });
+      const { appointments } = get();
+      if (appointments.length === 0) set({ appointments: MOCK_APPOINTMENTS });
       return;
     }
 
@@ -816,11 +818,11 @@ export const useClientStore = create<ClientState>((set, get) => ({
     try {
       const [spinsRes, configRes] = await Promise.all([
         supabase.from("game_spins").select("*").eq("client_id", profile.id).eq("store_id", STORE_ID).order("spun_at", { ascending: false }).limit(50),
-        supabase.from("game_configs").select("prizes, scratch_prizes").eq("store_id", STORE_ID).single(),
+        supabase.from("game_configs").select("prizes, scratch_prizes").eq("store_id", STORE_ID).maybeSingle(),
       ]);
 
-      if (spinsRes.data && configRes.data) {
-        const allPrizes: Prize[] = [...(configRes.data.prizes ?? []), ...(configRes.data.scratch_prizes ?? [])];
+      if (spinsRes.data) {
+        const allPrizes: Prize[] = [...(configRes.data?.prizes ?? []), ...(configRes.data?.scratch_prizes ?? [])];
         const prizeMap = new Map(allPrizes.map((p: Prize) => [p.id, p]));
 
         const enriched: EnrichedPrize[] = (spinsRes.data as GameSpinRecord[])
@@ -936,7 +938,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
           .limit(50),
         supabase.from("charme_transactions").select("*").eq("client_id", profile.id).eq("store_id", STORE_ID).order("created_at", { ascending: false }).limit(50),
         supabase.from("game_spins").select("*").eq("client_id", profile.id).eq("store_id", STORE_ID).order("spun_at", { ascending: false }).limit(50),
-        supabase.from("game_configs").select("prizes, scratch_prizes").eq("store_id", STORE_ID).single(),
+        supabase.from("game_configs").select("prizes, scratch_prizes").eq("store_id", STORE_ID).maybeSingle(),
       ]);
 
       const items: HistoryItem[] = [];
@@ -971,8 +973,8 @@ export const useClientStore = create<ClientState>((set, get) => ({
         });
       }
 
-      if (spinsRes.data && configRes.data) {
-        const allPrizes: Prize[] = [...(configRes.data.prizes ?? []), ...(configRes.data.scratch_prizes ?? [])];
+      if (spinsRes.data) {
+        const allPrizes: Prize[] = [...(configRes.data?.prizes ?? []), ...(configRes.data?.scratch_prizes ?? [])];
         const prizeMap = new Map(allPrizes.map((p: Prize) => [p.id, p]));
 
         (spinsRes.data as GameSpinRecord[]).forEach((spin) => {
