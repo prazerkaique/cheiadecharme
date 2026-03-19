@@ -289,7 +289,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
         .select("*")
         .eq("auth_id", session.user.id)
         .eq("role", "cliente")
-        .single();
+        .maybeSingle();
 
       if (!profile) {
         set({ _restoringSession: false });

@@ -37,7 +37,7 @@ export async function createTransactionOnComplete(opts: {
       .from("profiles")
       .select("commission_rate")
       .eq("id", opts.professionalId)
-      .single();
+      .maybeSingle();
     if (profile?.commission_rate != null) {
       commissionRate = profile.commission_rate;
     }

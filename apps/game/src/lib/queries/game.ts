@@ -99,3 +99,43 @@ export async function claimPrize(
     console.error("[claimPrize] Supabase error:", err);
   }
 }
+
+/**
+ * Deducts charmes from a client's wallet and logs the transaction.
+ */
+export async function deductClientCharmes(
+  clientId: string,
+  amount: number,
+  description: string
+): Promise<void> {
+  if (!isSupabaseConfigured()) return;
+
+  try {
+    const { data: wallet } = await supabase
+      .from("client_charmes")
+      .select("id, balance")
+      .eq("client_id", clientId)
+      .eq("store_id", STORE_ID)
+      .maybeSingle();
+
+    if (!wallet) {
+      console.error("[deductClientCharmes] No wallet found for client:", clientId);
+      return;
+    }
+
+    await supabase
+      .from("client_charmes")
+      .update({ balance: wallet.balance - amount })
+      .eq("id", wallet.id);
+
+    await supabase.from("charme_transactions").insert({
+      client_id: clientId,
+      store_id: STORE_ID,
+      type: "spend",
+      amount,
+      description,
+    });
+  } catch (err) {
+    console.error("[deductClientCharmes] Supabase error:", err);
+  }
+}

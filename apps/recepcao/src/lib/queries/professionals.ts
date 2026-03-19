@@ -17,7 +17,7 @@ export async function fetchStoreProfessionals(): Promise<
   // Fetch today's appointments to derive status + completed count
   const now = new Date();
   const startOfDay = new Date(
-    now.getFullYear(), now.getMonth(), now.getDate()
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
   ).toISOString();
 
   const { data: appointments } = await supabase

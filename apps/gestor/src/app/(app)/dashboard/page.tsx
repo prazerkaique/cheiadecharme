@@ -47,6 +47,7 @@ export default function DashboardPage() {
     totalRevenue,
     totalCommission,
     completedCount,
+    totalAppointments,
     avgTicket,
     revenueChart,
     serviceDistribution,
@@ -110,7 +111,7 @@ export default function DashboardPage() {
   }, [ranking, proNames]);
 
   // Occupancy rate (completed / total appointments)
-  const occupancyRate = completedCount > 0 ? 100 : 0;
+  const occupancyRate = totalAppointments > 0 ? Math.round((completedCount / totalAppointments) * 100) : 0;
 
   // Goals
   const revenuePercent = REVENUE_GOAL > 0 ? Math.round((totalRevenue / REVENUE_GOAL) * 100) : 0;

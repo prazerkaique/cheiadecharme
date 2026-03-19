@@ -153,7 +153,8 @@ export const useProfessionalStore = create<ProfessionalState>((set, get) => ({
         .select("id, name, avatar_url, specialty, store_id, is_available")
         .eq("auth_id", session.user.id)
         .eq("role", "profissional")
-        .single();
+        .eq("store_id", STORE_ID)
+        .maybeSingle();
 
       if (!profile) {
         set({ _restoringSession: false });
@@ -272,7 +273,8 @@ export const useProfessionalStore = create<ProfessionalState>((set, get) => ({
         .select("id, name, avatar_url, specialty, store_id, is_available")
         .eq("auth_id", session.user.id)
         .eq("role", "profissional")
-        .single();
+        .eq("store_id", STORE_ID)
+        .maybeSingle();
 
       if (!profile) throw new Error("Profile not found");
 

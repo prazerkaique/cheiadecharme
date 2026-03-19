@@ -132,15 +132,22 @@ export default function IdentifyScreen() {
     if (!registerName.trim()) return;
     setLoading(true);
 
-    const client = await registerClient({
-      name: registerName,
-      cpf: method === "cpf" ? inputValue : null,
-      phone: method === "phone" ? inputValue : null,
-    });
+    try {
+      const client = await registerClient({
+        name: registerName,
+        cpf: method === "cpf" ? inputValue : null,
+        phone: method === "phone" ? inputValue : null,
+      });
 
-    setClient(client);
-    setStep("payment");
-    setLoading(false);
+      setClient(client);
+      setStep("payment");
+    } catch (err) {
+      console.error("[IdentifyScreen] registerClient failed:", err);
+      setNotFound(true);
+      setRegisterMode(false);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

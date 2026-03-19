@@ -8,6 +8,7 @@ interface DashboardState {
   totalRevenue: number;
   totalCommission: number;
   completedCount: number;
+  totalAppointments: number;
   avgTicket: number;
   revenueChart: { date: string; value: number }[];
   serviceDistribution: Record<string, number>;
@@ -23,6 +24,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   totalRevenue: 0,
   totalCommission: 0,
   completedCount: 0,
+  totalAppointments: 0,
   avgTicket: 0,
   revenueChart: [],
   serviceDistribution: {},

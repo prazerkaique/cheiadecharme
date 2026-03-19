@@ -607,7 +607,7 @@ VALUES
 -- GAME CONFIG
 -- ---------------------------------------------------------------------------
 
-INSERT INTO game_configs (store_id, spin_cost_cents, prizes, logo_url, is_active)
+INSERT INTO game_configs (store_id, spin_cost_cents, prizes, scratch_prizes, logo_url, is_active)
 VALUES (
   'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   500,
@@ -624,6 +624,17 @@ VALUES (
     {"id":"prize-10","label":"Tente Novamente","type":"try_again","value":0,"color":"#F5B8D3","weight":15},
     {"id":"prize-11","label":"Corte Grátis","type":"free_service","value":0,"color":"#FFFFFF","weight":2},
     {"id":"prize-12","label":"+100 Charmes","type":"charmes","value":100,"color":"#C2185B","weight":3}
+  ]'::jsonb,
+  '[
+    {"id":"scratch-1","label":"10% Desconto","type":"discount_percent","value":10,"color":"#EC4899","weight":20},
+    {"id":"scratch-2","label":"20% Desconto","type":"discount_percent","value":20,"color":"#F59E0B","weight":12},
+    {"id":"scratch-3","label":"R$ 10 Desconto","type":"discount_fixed","value":1000,"color":"#8B5CF6","weight":8},
+    {"id":"scratch-4","label":"+15 Charmes","type":"charmes","value":15,"color":"#10B981","weight":15},
+    {"id":"scratch-5","label":"+30 Charmes","type":"charmes","value":30,"color":"#3B82F6","weight":10},
+    {"id":"scratch-6","label":"Escova Grátis","type":"free_service","value":0,"color":"#D94B8C","weight":4},
+    {"id":"scratch-7","label":"Hidratação Grátis","type":"free_service","value":0,"color":"#C2185B","weight":3},
+    {"id":"scratch-8","label":"Tente Novamente","type":"try_again","value":0,"color":"#9CA3AF","weight":18},
+    {"id":"scratch-9","label":"Nada dessa vez","type":"nothing","value":0,"color":"#6B7280","weight":10}
   ]'::jsonb,
   NULL,
   true

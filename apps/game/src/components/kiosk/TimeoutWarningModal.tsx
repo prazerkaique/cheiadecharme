@@ -17,7 +17,7 @@ export interface TimeoutWarningModalProps {
 // Constants
 // ---------------------------------------------------------------------------
 
-const TOTAL_SECONDS = 30;
+const TOTAL_SECONDS = 15;
 const CIRCLE_SIZE = 120;
 const RADIUS = 48;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;

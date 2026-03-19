@@ -118,6 +118,7 @@ export async function fetchDashboardKPIs(storeId: string, range: DateRange, show
     totalRevenue,
     totalCommission,
     completedCount,
+    totalAppointments: appts.length,
     avgTicket,
     revenueChart,
     serviceDistribution: serviceCount,

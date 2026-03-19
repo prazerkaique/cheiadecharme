@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Coins, QrCode } from "lucide-react";
 import { useGameStore } from "@/store/game-store";
+import { deductClientCharmes } from "@/lib/queries/game";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -35,15 +36,15 @@ export default function PaymentScreen() {
     (client?.balance_charmes ?? 0) >= costInCharmes;
 
   function handlePayWithCharmes() {
-    if (!hasEnoughCharmes) return;
+    if (!hasEnoughCharmes || !client) return;
     deductCharmes(costInCharmes);
     setStep("choose_game");
-  }
-
-  function handlePayWithPix() {
-    // In a real implementation, this would generate a PIX QR code
-    // For now, we simulate instant payment
-    setStep("choose_game");
+    // Persist deduction to DB in background
+    deductClientCharmes(
+      client.id,
+      costInCharmes,
+      `Jogada Cheia de Sorte: ${formatCurrency(config.spin_cost_cents)}`
+    );
   }
 
   return (
@@ -137,32 +138,25 @@ export default function PaymentScreen() {
             </div>
           </button>
 
-          {/* Pay with Pix */}
-          <button
-            type="button"
-            onPointerDown={(e) => {
-              e.preventDefault();
-              handlePayWithPix();
-            }}
-            className="w-full flex items-center gap-6 min-h-[120px] px-10 rounded-[22px] text-white active:scale-[0.98] transition-all ring-1 ring-white/20"
+          {/* Pay with Pix — disabled until payment integration */}
+          <div
+            className="w-full flex items-center gap-6 min-h-[120px] px-10 rounded-[22px] opacity-40 ring-1 ring-white/10"
             style={{
-              background: "linear-gradient(to right, #C2185B, #D94B8C)",
-              boxShadow:
-                "0 0 20px rgba(194,24,91,0.30), 0 4px 16px rgba(194,24,91,0.20)",
+              background: "linear-gradient(to right, #6B7280, #9CA3AF)",
             }}
           >
             <div className="flex items-center justify-center w-20 h-20 rounded-full shrink-0 bg-white/15">
               <QrCode size={40} className="text-white" />
             </div>
             <div className="flex flex-col items-start gap-1">
-              <span className="font-body text-[30px] font-semibold">
+              <span className="font-body text-[30px] font-semibold text-white">
                 Pagar com Pix
               </span>
               <span className="font-body text-[22px] text-white/70">
-                {formatCurrency(config.spin_cost_cents)} via QR Code
+                Em breve
               </span>
             </div>
-          </button>
+          </div>
         </motion.div>
 
         {/* Cancel */}

@@ -179,10 +179,16 @@ export default function PrizeScreen() {
     };
   }, [showConfirm, startTimer]);
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (!wonPrize || !client) return;
-    claimPrize(client.id, wonPrize);
-    setStep("claimed");
+    try {
+      await claimPrize(client.id, wonPrize);
+      setStep("claimed");
+    } catch (err) {
+      console.error("[PrizeScreen] claimPrize failed:", err);
+      // Still transition — the prize was already won, just log the persistence error
+      setStep("claimed");
+    }
   }
 
   function handleCancel() {
