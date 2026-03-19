@@ -30,7 +30,12 @@ function formatTime(date: Date): string {
 export default function IdleScreen() {
   const setStep = useGameStore((s) => s.setStep);
   const config = useGameStore((s) => s.config);
+  const loadConfig = useGameStore((s) => s.loadConfig);
   const [currentTime, setCurrentTime] = useState(() => formatTime(new Date()));
+
+  useEffect(() => {
+    loadConfig();
+  }, [loadConfig]);
 
   useEffect(() => {
     const id = setInterval(() => setCurrentTime(formatTime(new Date())), 1000);

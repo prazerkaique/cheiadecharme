@@ -1,6 +1,6 @@
 import { supabase, STORE_ID, isSupabaseConfigured } from "@/lib/supabase";
 import type { GameConfig, Prize } from "@cheia/types";
-import { DEFAULT_GAME_CONFIG, DEFAULT_SCRATCH_PRIZES } from "@/lib/mock-data";
+import { DEFAULT_GAME_CONFIG, DEFAULT_PRIZES, DEFAULT_SCRATCH_PRIZES } from "@/lib/mock-data";
 
 /**
  * Fetches the game configuration from Supabase.
@@ -14,7 +14,7 @@ export async function fetchGameConfig(): Promise<GameConfig> {
   try {
     const { data, error } = await supabase
       .from("game_configs")
-      .select("spin_cost_cents, prizes, logo_url")
+      .select("spin_cost_cents, prizes, scratch_prizes, logo_url")
       .eq("store_id", STORE_ID)
       .maybeSingle();
 
@@ -23,8 +23,8 @@ export async function fetchGameConfig(): Promise<GameConfig> {
 
     return {
       spin_cost_cents: data.spin_cost_cents,
-      prizes: data.prizes as Prize[],
-      scratchPrizes: DEFAULT_SCRATCH_PRIZES,
+      prizes: (data.prizes as Prize[]) ?? DEFAULT_PRIZES,
+      scratchPrizes: (data.scratch_prizes as Prize[]) ?? DEFAULT_SCRATCH_PRIZES,
       logo_url: data.logo_url ?? undefined,
     };
   } catch (err) {

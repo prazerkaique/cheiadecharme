@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { GameStep, GameClient, GameConfig, GameType, Prize } from "@cheia/types";
 import { DEFAULT_GAME_CONFIG } from "@/lib/mock-data";
+import { fetchGameConfig } from "@/lib/queries/game";
 
 // ---------------------------------------------------------------------------
 // State shape
@@ -43,6 +44,9 @@ interface GameState {
   // Cancel
   showCancel: () => void;
   hideCancel: () => void;
+
+  // Config
+  loadConfig: () => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -66,6 +70,7 @@ type GameData = Omit<
   | "setTimeoutSeconds"
   | "showCancel"
   | "hideCancel"
+  | "loadConfig"
 >;
 
 const initialState: GameData = {
@@ -127,4 +132,14 @@ export const useGameStore = create<GameState>()((set) => ({
   // Cancel
   showCancel: () => set({ showCancelConfirm: true }),
   hideCancel: () => set({ showCancelConfirm: false }),
+
+  // Config
+  loadConfig: async () => {
+    try {
+      const config = await fetchGameConfig();
+      set({ config });
+    } catch (err) {
+      console.error("[loadConfig] Failed, using defaults:", err);
+    }
+  },
 }));
