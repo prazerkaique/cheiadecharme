@@ -17,6 +17,8 @@ export type BookingStep =
 
 export type BottomTab = "home" | "booking" | "charmes" | "profile";
 
+export type LoginMethod = "phone" | "email" | "cpf";
+
 export type ServiceCategory = {
   name: string;
   icon: string;

@@ -8,8 +8,27 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
+function maskPhone(ph: string): string {
+  // "(44) 99760-7545" → "(44) 9****-7545"
+  const digits = ph.replace(/\D/g, "");
+  if (digits.length < 10) return ph;
+  const ddd = digits.slice(0, 2);
+  const last4 = digits.slice(-4);
+  const first = digits.slice(2, 3);
+  return `(${ddd}) ${first}****-${last4}`;
+}
+
+function maskEmail(em: string): string {
+  // "luana@email.com" → "l***@email.com"
+  const [local, domain] = em.split("@");
+  if (!local || !domain) return em;
+  return `${local[0]}***@${domain}`;
+}
+
 export function OtpScreen() {
+  const loginMethod = useClientStore((s) => s.loginMethod);
   const phone = useClientStore((s) => s.phone);
+  const email = useClientStore((s) => s.email);
   const otpCode = useClientStore((s) => s.otpCode);
   const setOtpCode = useClientStore((s) => s.setOtpCode);
   const verifyOtp = useClientStore((s) => s.verifyOtp);
@@ -17,6 +36,8 @@ export function OtpScreen() {
   const navigate = useClientStore((s) => s.navigate);
   const authLoading = useClientStore((s) => s.authLoading);
   const authError = useClientStore((s) => s.authError);
+
+  const otpTarget = loginMethod === "email" ? maskEmail(email) : maskPhone(phone);
 
   const [countdown, setCountdown] = useState(60);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -80,8 +101,8 @@ export function OtpScreen() {
           Verificacao
         </h2>
         <p className="text-brand-text-muted text-center mb-8">
-          Digite o codigo enviado para<br />
-          <span className="font-semibold text-brand-text">{phone}</span>
+          Codigo enviado para<br />
+          <span className="font-semibold text-brand-text">{otpTarget}</span>
         </p>
 
         {/* OTP Inputs */}
