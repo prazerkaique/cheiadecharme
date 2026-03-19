@@ -1,27 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Store, Coins, Monitor, Tv } from "lucide-react";
+import { Target, Ticket, Settings } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
-import { useConfigStore } from "@/store/config-store";
-import { LojaTab } from "@/components/config/LojaTab";
-import { CharmesTab } from "@/components/config/CharmesTab";
-import { KioskTab } from "@/components/config/KioskTab";
-import { TvTab } from "@/components/config/TvTab";
+import { useGameConfigStore } from "@/store/game-config-store";
+import { RouletteTab } from "@/components/game/RouletteTab";
+import { ScratchTab } from "@/components/game/ScratchTab";
+import { GeneralTab } from "@/components/game/GeneralTab";
 
-type ConfigTab = "loja" | "charmes" | "kiosk" | "tv";
+type GameTab = "roulette" | "scratch" | "general";
 
 const TABS = [
-  { key: "loja" as ConfigTab, label: "Loja", icon: Store },
-  { key: "charmes" as ConfigTab, label: "Charmes", icon: Coins },
-  { key: "kiosk" as ConfigTab, label: "Kiosk", icon: Monitor },
-  { key: "tv" as ConfigTab, label: "TV", icon: Tv },
+  { key: "roulette" as GameTab, label: "Roleta", icon: Target },
+  { key: "scratch" as GameTab, label: "Raspadinha", icon: Ticket },
+  { key: "general" as GameTab, label: "Geral", icon: Settings },
 ];
 
-export default function ConfiguracoesPage() {
+export default function GamePage() {
   const store = useAuthStore((s) => s.store);
-  const { loading, fetch } = useConfigStore();
-  const [activeTab, setActiveTab] = useState<ConfigTab>("loja");
+  const { loading, fetch } = useGameConfigStore();
+  const [activeTab, setActiveTab] = useState<GameTab>("roulette");
 
   useEffect(() => {
     if (store?.id) fetch(store.id);
@@ -38,8 +36,8 @@ export default function ConfiguracoesPage() {
   return (
     <div className="mx-auto max-w-4xl pb-20">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Configuracoes</h1>
-        <p className="text-sm text-gray-500">Gerencie as configuracoes da loja</p>
+        <h1 className="text-2xl font-bold text-gray-900">Cheia de Sorte</h1>
+        <p className="text-sm text-gray-500">Gerencie os jogos e premios</p>
       </div>
 
       {/* Tabs */}
@@ -60,10 +58,9 @@ export default function ConfiguracoesPage() {
         ))}
       </div>
 
-      {activeTab === "loja" && <LojaTab />}
-      {activeTab === "charmes" && <CharmesTab />}
-      {activeTab === "kiosk" && <KioskTab />}
-      {activeTab === "tv" && <TvTab />}
+      {activeTab === "roulette" && <RouletteTab />}
+      {activeTab === "scratch" && <ScratchTab />}
+      {activeTab === "general" && <GeneralTab />}
     </div>
   );
 }

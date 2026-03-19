@@ -168,6 +168,41 @@ export type Promotion = {
   created_at: string;
 };
 
+// === Store Settings ===
+
+export interface CharmePack {
+  charmes: number;
+  priceReais: number;
+}
+
+export interface StoreSettings {
+  // Loja
+  open_time?: string;
+  close_time?: string;
+  max_queue?: number;
+  ticket_prefix?: string;
+  // Charmes
+  charme_rate_cents?: number;
+  charme_packs?: CharmePack[];
+  charme_discount_2x?: number;
+  charme_discount_4x?: number;
+  charme_min_custom?: number;
+  charme_max_custom?: number;
+  // Kiosk
+  kiosk_idle_timeout_s?: number;
+  kiosk_warning_s?: number;
+  kiosk_done_countdown_s?: number;
+  kiosk_cross_sell_enabled?: boolean;
+  kiosk_cross_sell_discount?: number;
+  kiosk_categories?: string[];
+  kiosk_slideshow_interval_s?: number;
+  // TV
+  tv_message?: string;
+  tv_refresh_interval_s?: number;
+  // Mock data
+  show_mock_data?: boolean;
+}
+
 // === Kiosk Types ===
 
 export type KioskStep =

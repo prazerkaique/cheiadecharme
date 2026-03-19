@@ -8,6 +8,7 @@ import {
   Scissors,
   DollarSign,
   UserCheck,
+  Gamepad2,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { href: "/servicos", label: "Servicos", icon: Scissors },
   { href: "/vendas", label: "Vendas", icon: DollarSign },
   { href: "/clientes", label: "Clientes", icon: UserCheck },
+  { href: "/game", label: "Cheia de Sorte", icon: Gamepad2 },
 ] as const;
 
 const PRIMARY_COLOR = "#EC4899";

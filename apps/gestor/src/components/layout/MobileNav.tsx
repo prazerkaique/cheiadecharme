@@ -8,6 +8,7 @@ import {
   Scissors,
   DollarSign,
   UserCheck,
+  Gamepad2,
 } from "lucide-react";
 
 const PRIMARY_COLOR = "#EC4899";
@@ -18,6 +19,7 @@ const TABS = [
   { href: "/servicos", label: "Servicos", icon: Scissors },
   { href: "/vendas", label: "Vendas", icon: DollarSign },
   { href: "/clientes", label: "Clientes", icon: UserCheck },
+  { href: "/game", label: "Game", icon: Gamepad2 },
 ] as const;
 
 export function MobileNav() {
