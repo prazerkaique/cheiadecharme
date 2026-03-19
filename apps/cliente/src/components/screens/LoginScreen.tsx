@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Mail, CreditCard, Sparkles, ChevronLeft } from "lucide-react";
+import { Phone, Mail, CreditCard, Sparkles, ChevronLeft, Lock } from "lucide-react";
 import { useClientStore } from "@/store/client-store";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import type { LoginMethod } from "@/types/client";
@@ -9,9 +9,9 @@ import type { LoginMethod } from "@/types/client";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 const METHODS: { key: LoginMethod; label: string; icon: typeof Phone; desc: string }[] = [
-  { key: "phone", label: "Telefone", icon: Phone, desc: "Receba um codigo por SMS" },
-  { key: "email", label: "Email", icon: Mail, desc: "Receba um codigo por email" },
-  { key: "cpf", label: "CPF", icon: CreditCard, desc: "Use seu CPF cadastrado" },
+  { key: "phone", label: "Telefone", icon: Phone, desc: "Entre com seu telefone" },
+  { key: "email", label: "Email", icon: Mail, desc: "Entre com seu email" },
+  { key: "cpf", label: "CPF", icon: CreditCard, desc: "Entre com seu CPF" },
 ];
 
 function formatPhone(value: string) {
@@ -38,12 +38,14 @@ export function LoginScreen() {
   const setEmail = useClientStore((s) => s.setEmail);
   const cpf = useClientStore((s) => s.cpf);
   const setCpf = useClientStore((s) => s.setCpf);
-  const sendOtp = useClientStore((s) => s.sendOtp);
+  const password = useClientStore((s) => s.password);
+  const setPassword = useClientStore((s) => s.setPassword);
+  const login = useClientStore((s) => s.login);
   const authLoading = useClientStore((s) => s.authLoading);
   const authError = useClientStore((s) => s.authError);
 
-  const isSendDisabled = () => {
-    if (authLoading) return true;
+  const isDisabled = () => {
+    if (authLoading || !password) return true;
     if (loginMethod === "phone") return phone.replace(/\D/g, "").length < 10;
     if (loginMethod === "email") return !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     if (loginMethod === "cpf") return cpf.replace(/\D/g, "").length !== 11;
@@ -107,7 +109,7 @@ export function LoginScreen() {
               ))}
             </motion.div>
           ) : (
-            /* ── Stage 2: Input by method ── */
+            /* ── Stage 2: Input + password ── */
             <motion.div
               key="input"
               initial={{ opacity: 0, x: 20 }}
@@ -172,16 +174,30 @@ export function LoginScreen() {
                   </div>
                 )}
 
+                {/* Password */}
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-text-muted" />
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    placeholder="Senha"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-background border border-brand-border text-brand-text text-lg font-medium placeholder:text-brand-text-muted/50 focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition-all"
+                    disabled={authLoading}
+                  />
+                </div>
+
                 {authError && (
                   <p className="text-error text-sm text-center">{authError}</p>
                 )}
 
                 <button
-                  onPointerDown={(e) => { e.preventDefault(); sendOtp(); }}
-                  disabled={isSendDisabled()}
+                  onPointerDown={(e) => { e.preventDefault(); login(); }}
+                  disabled={isDisabled()}
                   className="w-full py-4 rounded-xl bg-gradient-to-r from-cta to-primary text-white font-display font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
                 >
-                  {authLoading ? <LoadingSpinner size={24} /> : "Enviar codigo"}
+                  {authLoading ? <LoadingSpinner size={24} /> : "Entrar"}
                 </button>
               </div>
             </motion.div>

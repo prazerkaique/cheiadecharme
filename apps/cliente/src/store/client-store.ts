@@ -36,6 +36,7 @@ interface ClientState {
   phone: string;
   email: string;
   cpf: string;
+  password: string;
   otpCode: string;
   authLoading: boolean;
   authError: string | null;
@@ -66,7 +67,9 @@ interface ClientState {
   setPhone: (phone: string) => void;
   setEmail: (email: string) => void;
   setCpf: (cpf: string) => void;
+  setPassword: (password: string) => void;
   setOtpCode: (code: string) => void;
+  login: () => Promise<void>;
   sendOtp: () => Promise<void>;
   verifyOtp: () => Promise<void>;
   restoreSession: () => Promise<void>;
@@ -122,6 +125,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
   phone: "",
   email: "",
   cpf: "",
+  password: "",
   otpCode: "",
   authLoading: false,
   authError: null,
@@ -153,7 +157,85 @@ export const useClientStore = create<ClientState>((set, get) => ({
   setPhone: (phone) => set({ phone, authError: null }),
   setEmail: (email) => set({ email, authError: null }),
   setCpf: (cpf) => set({ cpf, authError: null }),
+  setPassword: (password) => set({ password, authError: null }),
   setOtpCode: (code) => set({ otpCode: code, authError: null }),
+
+  login: async () => {
+    const { loginMethod, phone, email, cpf, password } = get();
+
+    if (password !== "12345") {
+      set({ authError: "Senha incorreta" });
+      return;
+    }
+
+    // Validate identifier
+    if (loginMethod === "phone") {
+      const digits = phone.replace(/\D/g, "");
+      if (digits.length < 10) { set({ authError: "Informe um telefone valido" }); return; }
+    } else if (loginMethod === "email") {
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { set({ authError: "Informe um email valido" }); return; }
+    } else if (loginMethod === "cpf") {
+      const d = cpf.replace(/\D/g, "");
+      if (d.length !== 11) { set({ authError: "Informe um CPF valido" }); return; }
+    }
+
+    set({ authLoading: true, authError: null });
+
+    if (!isSupabaseConfigured()) {
+      await new Promise((r) => setTimeout(r, 800));
+      set({
+        authLoading: false,
+        isLoggedIn: true,
+        screen: "home",
+        profile: MOCK_CLIENT,
+        charmes: MOCK_CHARMES,
+        appointments: MOCK_APPOINTMENTS,
+        promotions: MOCK_PROMOTIONS,
+        services: MOCK_SERVICES,
+        professionals: MOCK_PROFESSIONALS,
+        charmeTransactions: MOCK_CHARME_TRANSACTIONS,
+        activeTab: "home",
+      });
+      return;
+    }
+
+    try {
+      let profileData;
+
+      if (loginMethod === "phone") {
+        const digits = phone.replace(/\D/g, "");
+        const formatted = digits.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+        const { data } = await supabase.from("profiles").select("*").eq("phone", formatted).eq("role", "cliente").eq("store_id", STORE_ID).single();
+        profileData = data;
+      } else if (loginMethod === "email") {
+        const { data } = await supabase.from("profiles").select("*").eq("email", email).eq("role", "cliente").eq("store_id", STORE_ID).single();
+        profileData = data;
+      } else if (loginMethod === "cpf") {
+        const cpfDigits = cpf.replace(/\D/g, "");
+        const cpfFormatted = cpfDigits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+        const { data } = await supabase.from("profiles").select("*").eq("cpf", cpfFormatted).eq("role", "cliente").eq("store_id", STORE_ID).single();
+        profileData = data;
+      }
+
+      if (!profileData) {
+        const label = loginMethod === "phone" ? "Telefone" : loginMethod === "email" ? "Email" : "CPF";
+        set({ authLoading: false, authError: `${label} nao cadastrado` });
+        return;
+      }
+
+      set({
+        authLoading: false,
+        isLoggedIn: true,
+        screen: "home",
+        profile: profileData as Profile,
+        activeTab: "home",
+      });
+
+      get().loadHomeData();
+    } catch {
+      set({ authLoading: false, authError: "Erro ao fazer login. Tente novamente." });
+    }
+  },
 
   sendOtp: async () => {
     const { loginMethod, phone, email, cpf } = get();
@@ -416,6 +498,7 @@ export const useClientStore = create<ClientState>((set, get) => ({
       phone: "",
       email: "",
       cpf: "",
+      password: "",
       otpCode: "",
       activeTab: "home",
     });

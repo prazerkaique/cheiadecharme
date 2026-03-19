@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useClientStore } from "@/store/client-store";
 import { BottomNav } from "./BottomNav";
 import { LoginScreen } from "@/components/screens/LoginScreen";
-import { OtpScreen } from "@/components/screens/OtpScreen";
 import { HomeScreen } from "@/components/screens/HomeScreen";
 import { BookingScreen } from "@/components/screens/BookingScreen";
 import { CharmesScreen } from "@/components/screens/CharmesScreen";
@@ -18,7 +17,7 @@ export function AppShell() {
   const screen = useClientStore((s) => s.screen);
   const isLoggedIn = useClientStore((s) => s.isLoggedIn);
 
-  const showBottomNav = isLoggedIn && screen !== "login" && screen !== "otp";
+  const showBottomNav = isLoggedIn && screen !== "login";
 
   return (
     <>
@@ -34,7 +33,6 @@ export function AppShell() {
           }}
         >
           {screen === "login" && <LoginScreen />}
-          {screen === "otp" && <OtpScreen />}
           {screen === "home" && <HomeScreen />}
           {screen === "booking" && <BookingScreen />}
           {screen === "charmes" && <CharmesScreen />}
