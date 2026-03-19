@@ -15,6 +15,7 @@ interface TVState {
   currentCall: TVCall | null;
   now: Date;
   _channel: RealtimeChannel | null;
+  _pollInterval: ReturnType<typeof setInterval> | null;
 
   // Actions
   init: () => Promise<void>;
@@ -38,6 +39,7 @@ export const useTVStore = create<TVState>((set, get) => ({
   currentCall: null,
   now: new Date(),
   _channel: null,
+  _pollInterval: null,
 
   init: async () => {
     if (!isSupabaseConfigured()) return;
@@ -61,6 +63,17 @@ export const useTVStore = create<TVState>((set, get) => ({
   subscribe: () => {
     if (!isSupabaseConfigured() || get()._channel) return;
 
+    const refetchProfessionals = async () => {
+      try {
+        const professionals = await fetchTVProfessionals();
+        if (professionals.length > 0) {
+          set({ professionals });
+        }
+      } catch (err) {
+        console.error("[tv-store] re-fetch error:", err);
+      }
+    };
+
     const channel = supabase
       .channel("tv-appointments")
       .on(
@@ -73,14 +86,7 @@ export const useTVStore = create<TVState>((set, get) => ({
         },
         async (payload) => {
           // Re-fetch professionals to update statuses on any appointment change
-          try {
-            const professionals = await fetchTVProfessionals();
-            if (professionals.length > 0) {
-              set({ professionals });
-            }
-          } catch (err) {
-            console.error("[tv-store] realtime re-fetch error:", err);
-          }
+          await refetchProfessionals();
 
           // If status changed to "waiting", push a call notification
           if (
@@ -143,15 +149,22 @@ export const useTVStore = create<TVState>((set, get) => ({
       )
       .subscribe();
 
-    set({ _channel: channel });
+    // Polling fallback: refetch professionals every 10s in case Realtime misses events
+    const pollInterval = setInterval(refetchProfessionals, 10_000);
+
+    set({ _channel: channel, _pollInterval: pollInterval });
   },
 
   unsubscribe: () => {
     const channel = get()._channel;
+    const pollInterval = get()._pollInterval;
     if (channel) {
       supabase.removeChannel(channel);
-      set({ _channel: null });
     }
+    if (pollInterval) {
+      clearInterval(pollInterval);
+    }
+    set({ _channel: null, _pollInterval: null });
   },
 
   tick: () => set({ now: new Date() }),

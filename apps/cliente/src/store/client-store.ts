@@ -232,6 +232,9 @@ export const useClientStore = create<ClientState>((set, get) => ({
         charmeTransactions: MOCK_CHARME_TRANSACTIONS,
         activeTab: "home",
       });
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cliente_profile_id", "mock");
+      }
       return;
     }
 
@@ -257,6 +260,11 @@ export const useClientStore = create<ClientState>((set, get) => ({
         const label = loginMethod === "phone" ? "Telefone" : loginMethod === "email" ? "Email" : "CPF";
         set({ authLoading: false, authError: `${label} nao cadastrado` });
         return;
+      }
+
+      // Persist profile ID for session restore on F5
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cliente_profile_id", profileData.id);
       }
 
       set({
@@ -481,45 +489,88 @@ export const useClientStore = create<ClientState>((set, get) => ({
   },
 
   restoreSession: async () => {
+    // Mock mode: check localStorage for mock session
     if (!isSupabaseConfigured()) {
+      const savedId = typeof window !== "undefined" ? localStorage.getItem("cliente_profile_id") : null;
+      if (savedId === "mock") {
+        set({
+          _restoringSession: false,
+          isLoggedIn: true,
+          screen: "home",
+          profile: MOCK_CLIENT,
+          charmes: MOCK_CHARMES,
+          appointments: MOCK_APPOINTMENTS,
+          promotions: MOCK_PROMOTIONS,
+          services: MOCK_SERVICES,
+          professionals: MOCK_PROFESSIONALS,
+          charmeTransactions: MOCK_CHARME_TRANSACTIONS,
+          activeTab: "home",
+        });
+        return;
+      }
       set({ _restoringSession: false });
       return;
     }
 
     try {
+      // 1. Try Supabase Auth session (for OTP users)
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        set({ _restoringSession: false });
-        return;
+      if (session) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("auth_id", session.user.id)
+          .eq("role", "cliente")
+          .maybeSingle();
+
+        if (profile) {
+          set({
+            _restoringSession: false,
+            isLoggedIn: true,
+            screen: "home",
+            profile: profile as Profile,
+            activeTab: "home",
+          });
+          get().loadHomeData();
+          return;
+        }
       }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("auth_id", session.user.id)
-        .eq("role", "cliente")
-        .maybeSingle();
+      // 2. Fallback: localStorage (for password-based login that doesn't create auth session)
+      const savedProfileId = typeof window !== "undefined" ? localStorage.getItem("cliente_profile_id") : null;
+      if (savedProfileId) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", savedProfileId)
+          .eq("role", "cliente")
+          .maybeSingle();
 
-      if (!profile) {
-        set({ _restoringSession: false });
-        return;
+        if (profile) {
+          set({
+            _restoringSession: false,
+            isLoggedIn: true,
+            screen: "home",
+            profile: profile as Profile,
+            activeTab: "home",
+          });
+          get().loadHomeData();
+          return;
+        }
+        // Invalid saved ID — clean up
+        localStorage.removeItem("cliente_profile_id");
       }
 
-      set({
-        _restoringSession: false,
-        isLoggedIn: true,
-        screen: "home",
-        profile: profile as Profile,
-        activeTab: "home",
-      });
-
-      get().loadHomeData();
+      set({ _restoringSession: false });
     } catch {
       set({ _restoringSession: false });
     }
   },
 
   logout: () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("cliente_profile_id");
+    }
     if (isSupabaseConfigured()) {
       supabase.auth.signOut().catch(() => {});
     }

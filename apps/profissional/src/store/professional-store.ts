@@ -41,6 +41,7 @@ interface ProfessionalState {
 
   // Internal
   _channel: RealtimeChannel | null;
+  _pollInterval: ReturnType<typeof setInterval> | null;
 
   // Screen-specific
   selectedSlotId: string | null;
@@ -105,6 +106,7 @@ export const useProfessionalStore = create<ProfessionalState>((set, get) => ({
   waitingQueue: [],
   now: new Date(),
   _channel: null,
+  _pollInterval: null,
 
   selectedSlotId: null,
   directedSlotId: null,
@@ -141,32 +143,14 @@ export const useProfessionalStore = create<ProfessionalState>((set, get) => ({
       set({ _restoringSession: false });
       return;
     }
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        set({ _restoringSession: false });
-        return;
-      }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("id, name, avatar_url, specialty, store_id, is_available")
-        .eq("auth_id", session.user.id)
-        .eq("role", "profissional")
-        .eq("store_id", STORE_ID)
-        .maybeSingle();
-
-      if (!profile) {
-        set({ _restoringSession: false });
-        return;
-      }
-
+    const restoreFromProfile = async (profile: Record<string, unknown>) => {
       const professional: ProfessionalProfile = {
         id: profile.id as string,
         name: profile.name as string,
         avatar_url: (profile.avatar_url as string | null) ?? null,
         specialty: (profile.specialty as string) ?? "",
-        availability: profile.is_available ? "available" : "busy",
+        availability: (profile.is_available as boolean) ? "available" : "busy",
         store_id: profile.store_id as string,
       };
 
@@ -193,6 +177,46 @@ export const useProfessionalStore = create<ProfessionalState>((set, get) => ({
       });
 
       get().subscribe();
+    };
+
+    try {
+      // 1. Try Supabase Auth session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id, name, avatar_url, specialty, store_id, is_available")
+          .eq("auth_id", session.user.id)
+          .eq("role", "profissional")
+          .eq("store_id", STORE_ID)
+          .maybeSingle();
+
+        if (profile) {
+          await restoreFromProfile(profile);
+          return;
+        }
+      }
+
+      // 2. Fallback: localStorage
+      const savedAuthId = typeof window !== "undefined" ? localStorage.getItem("prof_auth_id") : null;
+      if (savedAuthId) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id, name, avatar_url, specialty, store_id, is_available")
+          .eq("auth_id", savedAuthId)
+          .eq("role", "profissional")
+          .eq("store_id", STORE_ID)
+          .maybeSingle();
+
+        if (profile) {
+          await restoreFromProfile(profile);
+          return;
+        }
+        // Invalid saved ID — clean up
+        localStorage.removeItem("prof_auth_id");
+      }
+
+      set({ _restoringSession: false });
     } catch (err) {
       console.error("[professional-store] restoreSession error:", err);
       set({ _restoringSession: false });
@@ -203,7 +227,31 @@ export const useProfessionalStore = create<ProfessionalState>((set, get) => ({
 
   subscribe: () => {
     if (!isSupabaseConfigured() || get()._channel) return;
-    const profId = get().professional.id;
+
+    const refetch = async () => {
+      try {
+        const currentProfId = get().professional.id;
+        const [schedule, waitingQueue] = await Promise.all([
+          fetchMySchedule(currentProfId),
+          fetchWaitingQueue(currentProfId),
+        ]);
+        const directed = schedule.find(
+          (s) => s.status === "waiting" || s.status === "checked_in"
+        );
+        const hasActive = schedule.some((s) => s.status === "in_progress");
+        set({
+          schedule,
+          waitingQueue,
+          directedSlotId: directed?.id ?? null,
+          professional: {
+            ...get().professional,
+            availability: hasActive ? "busy" : "available",
+          },
+        });
+      } catch (err) {
+        console.error("[professional-store] re-fetch error:", err);
+      }
+    };
 
     const channel = supabase
       .channel("profissional-appointments")
@@ -215,43 +263,26 @@ export const useProfessionalStore = create<ProfessionalState>((set, get) => ({
           table: "appointments",
           filter: `store_id=eq.${STORE_ID}`,
         },
-        async () => {
-          // Re-fetch schedule + waiting queue on any appointment change
-          try {
-            const currentProfId = get().professional.id;
-            const [schedule, waitingQueue] = await Promise.all([
-              fetchMySchedule(currentProfId),
-              fetchWaitingQueue(currentProfId),
-            ]);
-            const directed = schedule.find(
-              (s) => s.status === "waiting" || s.status === "checked_in"
-            );
-            const hasActive = schedule.some((s) => s.status === "in_progress");
-            set({
-              schedule,
-              waitingQueue,
-              directedSlotId: directed?.id ?? null,
-              professional: {
-                ...get().professional,
-                availability: hasActive ? "busy" : "available",
-              },
-            });
-          } catch (err) {
-            console.error("[professional-store] realtime re-fetch error:", err);
-          }
-        }
+        () => { refetch(); }
       )
       .subscribe();
 
-    set({ _channel: channel });
+    // Polling fallback: refetch every 10s in case Realtime misses events
+    const pollInterval = setInterval(refetch, 10_000);
+
+    set({ _channel: channel, _pollInterval: pollInterval });
   },
 
   unsubscribe: () => {
     const channel = get()._channel;
+    const pollInterval = get()._pollInterval;
     if (channel) {
       supabase.removeChannel(channel);
-      set({ _channel: null });
     }
+    if (pollInterval) {
+      clearInterval(pollInterval);
+    }
+    set({ _channel: null, _pollInterval: null });
   },
 
   // ── Navigation ──────────────────────────────────────────────
@@ -298,6 +329,11 @@ export const useProfessionalStore = create<ProfessionalState>((set, get) => ({
         (s) => s.status === "waiting" || s.status === "checked_in"
       );
 
+      // Persist auth_id for session restore on F5
+      if (typeof window !== "undefined" && session) {
+        localStorage.setItem("prof_auth_id", session.user.id);
+      }
+
       set({
         isLoggedIn: true,
         screen: "home",
@@ -318,6 +354,9 @@ export const useProfessionalStore = create<ProfessionalState>((set, get) => ({
 
   logout: async () => {
     get().unsubscribe();
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("prof_auth_id");
+    }
     if (isSupabaseConfigured()) {
       try {
         await supabase.auth.signOut();
